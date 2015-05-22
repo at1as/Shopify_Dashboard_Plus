@@ -212,21 +212,6 @@ helpers do
                 :revenue_per_price_point => revenue_per_price_point.sort_by{|x,y| x.to_f }.to_h
               }
 
-    #return [currencies, 
-     #       sales_per_country, 
-      #      revenue_per_country_uniq,
-       #     products, 
-        #    prices.sort_by{|x,y| x.to_f }.to_h, 
-         #   customer_sales_uniq, 
-          #  referring_sites.sort().to_h,
-           # revenue_per_referral_site.sort().to_h, 
-           #  total_revenue, 
-           # daily_revenue,
-           # revenue_per_price_point.sort_by{|x,y| x.to_f }.to_h,
-           # revenue_per_product,
-            #revenue_per_referral_page.sort().to_h,
-            #referring_pages.sort().to_h
-            #]
     return metrics
   end
 end
@@ -244,85 +229,3 @@ get '/' do
   
   erb :report
 end
-
-
-__END__
-
-
-@@ report
-
-<div id="table_bounds" style="margin-left:10px; margin-right:10px; margin-bottom:40px">
-  <div class="well" style="text-align:center; max-width:600px; margin-left:auto; margin-right:auto; margin-top:30px">
-  <h2 style="margin-top:10px; margin-bottom:20px">Shopify Dashboard Plus</h2>
-    <hr>
-    Retrieve metrics over the following period
-    <form class="form-inline" id="set-date" method="get" action="/">
-      <h4>
-        <input id="from" name="from" class="form-control form-field-small" value="<%= h(params[:from]) %>" pattern="^[1-2][0-9]{3}-[0-3][0-9]-[0-3][0-9]$" placeholder="<%= @today %>">
-        to
-        <input id="to" name="to" class="form-control form-field-small" value="<%= h(params[:to]) %>" pattern="^[1-2][0-9]{3}-[0-3][0-9]-[0-3][0-9]$"% placeholder="<%= @today %>">
-        <input type="submit" class="btn btn-primary" value="Get Data">
-      </h4>
-    <form>
-    <hr>
-  </div>
-
-  <hr>
-  <h3 style="text-align:center">Currencies</h3>
-  <div style="text-align:center"><h4>Currencies Used per Purchase</h4></div>
-  <%= pie_chart @metrics[:currencies] %>
-
-  <hr>
-  <h3 style="text-align:center">Countries</h3>
-  <div style="text-align:center"><h4>Proportion of Sales per Country</h4></div>
-  <%= pie_chart @metrics[:sales_per_country] %>
-
-  <div style="text-align:center"><h4>Revenue per Country</h4></div>
-  <%= column_chart @metrics[:revenue_per_country], stacked: true %>
-
-  <hr>
-  <h3 style="text-align:center">Sales</h3>
-  <div style="text-align:center"><h4>Daily Sales</h4></div>
-  <%= column_chart @metrics[:daily_revenue], library: {hAxis: {direction: -1}} %>
-  <div style="text-align:center"><h5>Total Sales: <%= @metrics[:total_revenue] %></h5></div>
-  <div style="text-align:center"><h5>Average Per Day: <%= @metrics[:average_revenue] %></h5></div>
-
-  <div style="text-align:center"><h4>Proportion of Sales per Product</h4></div>
-  <%= pie_chart @metrics[:products] %>
-
-  <div style="text-align:center"><h4>Number of Sales per Product</h4></div>
-  <%= column_chart @metrics[:products] %>
-
-  <div style="text-align:center"><h4>Revenue per Product</h4></div>
-  <%= column_chart @metrics[:revenue_per_product] %>
-
-  <hr>
-  <h3 style="text-align:center">Prices</h3>
-  <div style="text-align:center"><h4>Proportion of Items Sold Per Price Point</h4></div>
-  <%= pie_chart @metrics[:prices] %>
-
-  <div style="text-align:center"><h4>Number of Items Sold Per Price Point</h4></div>
-  <%= column_chart @metrics[:prices] %>
-
-  <div style="text-align:center"><h4>Revenue per Price Point</h4></div>
-  <%= column_chart @metrics[:revenue_per_price_point] %>
-
-  <hr>
-  <h3 style="text-align:center">Customers</h3>
-  <div style="text-align:center"><h4>Purchases per Customer</h4></div>
-  <%= column_chart @metrics[:customer_sales], stacked: true %>
-
-  <hr>
-  <h3 style="text-align:center">Traffic Metrics</h3>
-  <div style="text-align:center"><h4>Referrals per Site</h4></div>
-  <%= column_chart @metrics[:referring_sites] %>
-
-  <div style="text-align:center"><h4>Referrals per Site Pages</h4></div>
-  <%= column_chart @metrics[:referring_pages] %>
-
-  <div style="text-align:center"><h4>Revenue Per Referral Site</h4></div>
-  <%= column_chart @metrics[:revenue_per_referral_site] %>
-
-  <div style="text-align:center"><h4>Revenue Per Referral Site Page</h4></div>
-  <%= column_chart @metrics[:revenue_per_referral_page] %>
-</div>
