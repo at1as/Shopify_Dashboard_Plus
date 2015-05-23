@@ -9,7 +9,7 @@ require 'shopify-dashboard-plus/version'
 Gem::Specification.new do |spec|
   spec.name          = "shopify_dashboard_plus"
   spec.date          = Date.today.to_s
-  spec.version       = ShopifyDashboardPlus::Version 
+  spec.version       = ShopifyDashboardPlus::VERSION
   spec.authors       = ["Jason Willems"]
   spec.email         = ["jason@willems.ca"]
   spec.summary       = "Extended dashboard for shopify admin"

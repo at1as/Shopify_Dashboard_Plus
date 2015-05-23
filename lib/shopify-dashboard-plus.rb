@@ -5,7 +5,7 @@ require 'tilt/erubis'
 require 'shopify_api'
 require 'uri'
 require 'chartkick'
-
+require_relative 'shopify-dashboard-plus/version'
 
 configure do
   set :public_dir, File.expand_path('../../public', __FILE__)
