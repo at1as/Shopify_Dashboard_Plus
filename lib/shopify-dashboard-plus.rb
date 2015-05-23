@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'sinatra'
+require 'tilt/erubis'
 require 'shopify_api'
 require 'uri'
 require 'chartkick'
@@ -10,19 +11,27 @@ configure do
   set :public_dir, File.expand_path('../../public', __FILE__)
   set :views, File.expand_path('../../views', __FILE__)
 
-  API_KEY = ENV["SHP_KEY"]
-  PASSWORD = ENV["SHP_PWD"]
-  SHOP_NAME = ENV["SHP_NAME"]
+  $connected ||= false
 
-  HELP = 'Set global environment variables before calling script, or call with ENV variables: \
-          \tExample: SHP_KEY="<shop_key>" SHP_PWD="<shop_password>" SHP_NAME="<shop_name>" ./lib/shopify-dashboard.rb'
+  HELP = "Set global environment variables before calling script, or call with ENV variables: \
+  \t\nExample: SHP_KEY=\"<shop_key>\" SHP_PWD=\"<shop_password>\" SHP_NAME=\"<shop_name>\" ./lib/shopify-dashboard.rb\n"
 
-  begin
-    shop_url = "https://#{API_KEY}:#{PASSWORD}@#{SHOP_NAME}.myshopify.com/admin"
-    ShopifyAPI::Base.site = shop_url
-  rescue
-    puts HELP
-    exit
+  # Connect if Environment variables were set
+  if ENV["SHP_KEY"] && ENV["SHP_PWD"] && ENV["SHP_NAME"]
+    API_KEY = ENV["SHP_KEY"]
+    PASSWORD = ENV["SHP_PWD"]
+    SHOP_NAME = ENV["SHP_NAME"]
+    
+    begin
+      shop_url = "https://#{API_KEY}:#{PASSWORD}@#{SHOP_NAME}.myshopify.com/admin"
+      ShopifyAPI::Base.site = shop_url
+      puts shop_url
+      shop = ShopifyAPI::Shop.current
+      $connected = true
+    rescue Exception => e
+      puts "\nFailed to connect using provided credentials...(Exception: #{e}\n #{HELP}"
+      exit
+    end
   end
 end
 
@@ -31,7 +40,33 @@ helpers do
   include Rack::Utils
   alias_method :h, :escape_html
 
+  # Connection Helpers
+  def set_connection(key, pwd, name)
+    begin
+      shop_url = "https://#{key}:#{pwd}@#{name}.myshopify.com/admin"
+      ShopifyAPI::Base.site = shop_url
+      shop = ShopifyAPI::Shop.current
+      connection_open
+      puts "YESSSS #{connected?}"
+    rescue
+      connection_closed
+    end
+  end
 
+  def connection_closed
+    $connected = false
+  end
+
+  def connection_open
+    $connected = true
+  end
+
+  def connected?
+    $connected
+  end
+
+
+  # Generic Helpers
   def hash_to_list(unprocessed_hash)
     return_list = []
     unprocessed_hash.each do |key, value|
@@ -39,7 +74,12 @@ helpers do
     end
   end
 
+  def date_today
+    DateTime.now.strftime('%Y-%m-%d')
+  end
 
+
+  # Metrics Helpers
   def get_total_revenue(orders)
     revenue = orders.collect{|order| order.total_price.to_f }.inject(:+).round(2) rescue 0
     revenue ||= 0
@@ -124,7 +164,7 @@ helpers do
     
     # Revenue
     total_revenue = get_total_revenue(revenue_metrics)
-    avg_revenue = (total_revenue/(DateTime.parse(end_date).mjd - DateTime.parse(start_date).mjd)).round(2)
+    avg_revenue = (total_revenue/(DateTime.parse(end_date).mjd - DateTime.parse(start_date).mjd + 1)).round(2) rescue "N/A"
     daily_revenue = get_daily_revenues(start_date, end_date, revenue_metrics)
 
     # Countries & Currencies
@@ -218,14 +258,37 @@ end
 
 
 get '/' do
+  redirect '/connect' unless connected?
+
   # If no start date is set, default to match end date
   # If no date parameters are set, default both to today
-  @today = DateTime.now.strftime('%Y-%m-%d')
+  @today = date_today
 
-  from = params[:from] || params[:to] || @today
-  to = params[:to] || @today
+  from = (params[:from] if not params[:from].empty? rescue nil) || params[:to] || @today
+  to = (params[:to] if not params[:to].empty? rescue nil) || @today
+
+  puts from, to, "FT ^"
 
   @metrics = get_detailed_revenue_metrics(from, to)
   
   erb :report
+end
+
+get '/connect' do
+  erb :connect
+end
+
+post '/connect' do
+  set_connection(params[:api_key], params[:api_pwd], params[:shop_name])
+  
+  if connected?
+    redirect '/'
+  else
+    erb :connect
+  end
+end
+
+post '/disconnect' do
+  API_KEY, API_PWD, SHP_NAME = "", "", ""
+  connection_closed
 end
