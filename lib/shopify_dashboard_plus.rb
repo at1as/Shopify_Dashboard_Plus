@@ -239,16 +239,16 @@ helpers do
         end
         order.line_items.each do |line_item|
           if order.attributes['referring_site'].empty?
-            revenue_per_referral_page['None'] += line_item.price.to_f
-            revenue_per_referral_site['None'] += line_item.price.to_f
+            revenue_per_referral_page['None'] += line_item.price.to_f.round(2) rescue 0
+            revenue_per_referral_site['None'] += line_item.price.to_f.round(2) rescue 0
           else
             host = URI(order.referring_site).host
             host = host.start_with?('www.') ? host[4..-1] : host
             page = order.referring_site
             page = page.start_with?('http://') ? page[7..-1] : page
             page = page.start_with?('https://') ? page[8..-1] : page
-            revenue_per_referral_site[host] += line_item.price.to_f
-            revenue_per_referral_page[page] += line_item.price.to_f
+            revenue_per_referral_site[host] += line_item.price.to_f.round(2) rescue 0
+            revenue_per_referral_page[page] += line_item.price.to_f.round(2) rescue 0
           end
         end
       end
@@ -256,8 +256,8 @@ helpers do
       order.line_items.each do |line_item|
         products[line_item.title] += 1
         prices[line_item.price] += 1
-        revenue_per_price_point[line_item.price] += line_item.price.to_f
-        revenue_per_product[line_item.title] += line_item.price.to_f
+        revenue_per_price_point[line_item.price] += line_item.price.to_f.round(2) rescue 0
+        revenue_per_product[line_item.title] += line_item.price.to_f.round(2) rescue 0
         
         revenue_per_country.push({:name => line_item.title, :data => [order.billing_address.country, line_item.price.to_f]})
         customer_sales.push({:name => line_item.title, :data => [order.customer.id.to_s, line_item.price.to_f]})
@@ -345,4 +345,3 @@ after '/quit' do
   puts "\nExiting..."
   exit!
 end
-

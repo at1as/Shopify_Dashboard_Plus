@@ -1,20 +1,12 @@
-# Shopify-Dashboard-Plus
+# Shopify_Dashboard_Plus[![Gem Version](https://badge.fury.io/rb/shopify_dashboard_plus.svg)](http://badge.fury.io/rb/shopify_dashboard_plus)
 Pretty Dashboard for Shopify Admin with lots of graphs.
 
-## Usage
-* To install: `git clone https://github.com/at1as/Shopify_Dashboard_Plus.git`
-* For dependencies see: `shopify_dashboard_plus.gemfile`
-* Retrieve `API Key`, `Password` and `Shop Name` for your store from Shopify Admin
-* `SHP_KEY="my_key" SHP_PWD="my_password" SHP_NAME="my_shop" ./lib/shopify_dashboard_plus.rb`
+## Screenshots
+
+![screenshot](https://github.com/at1as/at1as.github.io/blob/master/github_repo_assets/dashboard-plus1.jpg)
 
 ## Metrics
 Choose the interval over which to get data and see it displayed as:
-
-*Currency*
-* Currencies Used per Purchase
-
-*Countries*
-* Proportion of Sales per Country
 
 *Sales*
 * Daily Sales
@@ -29,6 +21,12 @@ Choose the interval over which to get data and see it displayed as:
 * Number of Items Sold Per Price Point
 * Revenue per Price Point
 
+*Countries*
+* Proportion of Sales per Country
+
+*Currency*
+* Currencies Used per Purchase
+
 *Customers*
 * Purchases per Customer
 
@@ -38,6 +36,19 @@ Choose the interval over which to get data and see it displayed as:
 * Revenue Per Referral Site
 * Revenue Per Specific Referral Site Page
 
-## Screenshots
+## Usage
+* To install manually: 
+  * `git clone https://github.com/at1as/Shopify_Dashboard_Plus.git`
+* To install via the gem: 
+  * `gem install shopify_dashboard_plus`
+  * Note: Gem build will generally trail the repo by days-to-weeks
+* For dependencies see: 
+  * `shopify_dashboard_plus.gemfile`
+* Retrieve `API Key`, `Password` and `Shop Name` for your store from Shopify Admin
+* Run (key, password & name can be passed as environment variables, or later thorugh the UI):
+  * `SHP_KEY="my_key" SHP_PWD="my_password" SHP_NAME="my_shop" ./lib/shopify_dashboard_plus.rb`
 
-![screenshot](https://github.com/at1as/at1as.github.io/blob/master/github_repo_assets/dashboard-plus1.jpg)
+## TODO
+
+* Not all floats render with a two-digit precision
+* Limited to 250 results
