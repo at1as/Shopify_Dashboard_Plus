@@ -166,7 +166,7 @@ helpers do
                                                                 :page => 1,
                                                                 :limit => 250,
                                                                 :fields => desired_fields })
-    
+
     # Revenue
     total_revenue = get_total_revenue(revenue_metrics)
     avg_revenue = (total_revenue/(DateTime.parse(end_date).mjd - DateTime.parse(start_date).mjd + 1)).round(2) rescue "N/A"
@@ -245,17 +245,17 @@ helpers do
                 :sales_per_country => sales_per_country,
                 :revenue_per_country => revenue_per_country_uniq,
                 :products => products,
-                :prices => prices.sort_by{|x,y| x.to_f }.to_h,
+                :prices => (prices.sort_by{|x,y| x.to_f }.to_h rescue {}),
                 :customer_sales => customer_sales_uniq,
-                :referring_sites => referring_sites.sort().to_h,
-                :referring_pages => referring_pages.sort().to_h,
-                :revenue_per_referral_site => revenue_per_referral_site.sort().to_h,
-                :revenue_per_referral_page => revenue_per_referral_page.sort().to_h,
+                :referring_sites => (referring_sites.sort().to_h rescue {}),
+                :referring_pages => (referring_pages.sort().to_h rescue {}),
+                :revenue_per_referral_site => (revenue_per_referral_site.sort().to_h rescue {}),
+                :revenue_per_referral_page => (revenue_per_referral_page.sort().to_h rescue {}),
                 :total_revenue => total_revenue,
                 :average_revenue => avg_revenue,
                 :daily_revenue => daily_revenue,
                 :revenue_per_product => revenue_per_product,
-                :revenue_per_price_point => revenue_per_price_point.sort_by{|x,y| x.to_f }.to_h
+                :revenue_per_price_point => (revenue_per_price_point.sort_by{|x,y| x.to_f }.to_h rescue {})
               }
 
     return metrics
