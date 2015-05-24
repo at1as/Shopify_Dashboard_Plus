@@ -4,12 +4,11 @@ lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 require 'date'
-require 'shopify-dashboard-plus/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "shopify_dashboard_plus"
   spec.date          = Date.today.to_s
-  spec.version       = ShopifyDashboardPlus::VERSION
+  spec.version       = "0.0.1"
   spec.authors       = ["Jason Willems"]
   spec.email         = ["jason@willems.ca"]
   spec.summary       = "Extended dashboard for shopify admin"

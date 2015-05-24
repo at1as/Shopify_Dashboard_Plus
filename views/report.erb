@@ -3,7 +3,7 @@
     <h2 style="margin-top:10px; margin-bottom:20px">Shopify Dashboard Plus</h2>
     <hr>
     <div style="margin-bottom:10px;">
-      Retrieve metrics over the following period <% if SHOP_NAME %>for: <br/><i><%= SHOP_NAME %>.myshopify.com/admin</i><% end %>
+      Retrieve metrics over the following period <% if shop_name %>for: <br/><i><%= shop_name %>.myshopify.com/admin</i><% end %>
     </div>
     <form class="form-inline" id="set-date" method="get" action="/">
       <h4>
@@ -13,11 +13,9 @@
         <input type="submit" class="btn btn-primary" value="Get Data">
       </h4>
     <form>
-    <hr>
   </div>
 
 
-  <hr>
   <h3 class="section-divider">Sales</h3>
   <div class="graph-container">
     <div class="graph-border">
@@ -41,8 +39,7 @@
     </div>
   </div>
 
-
-  <hr>
+  
   <h3 class="section-divider">Prices</h3>
   <div class="graph-container">
     <div class="graph-border">
@@ -60,7 +57,6 @@
   </div>
 
 
-  <hr>
   <h3 class="section-divider">Countries</h3>
   <div class="graph-container">
     <div class="graph-border">
@@ -74,7 +70,6 @@
   </div>
 
 
-  <hr>
   <h3 class="section-divider">Currencies</h3>
   <div class="graph-container">
     <div class="graph-border">
@@ -84,7 +79,6 @@
   </div>
 
 
-  <hr>
   <h3 class="section-divider">Customers</h3>
   <div class="graph-container">
     <div class="graph-border">
@@ -94,7 +88,6 @@
   </div>
 
 
-  <hr>
   <h3 class="section-divider">Traffic Metrics</h3>
   <div class="graph-container">
     <div class="graph-border">

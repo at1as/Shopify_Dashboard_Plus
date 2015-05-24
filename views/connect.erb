@@ -1,18 +1,29 @@
 <div class="well" style="text-align:center; max-width:600px; margin-left:auto; margin-right:auto; margin-top:30px">
-  <h2 style="margin-top:10px; margin-bottom:20px">Connect to Shopify Dashboard Plus</h2>
+  <h2 style="margin-top:10px; margin-bottom:20px">Connect to your Shopify Admin</h2>
   <hr>
   <% if not connected? %>
     <form class="form-inline" id="connect" method="post" action="/connect">
-      <input id="api_key" name="api_key" class="form-control form-field-small" value="<%= h(params[:api_key]) %>" pattern="^[0-9a-z]*$" placeholder="API_KEY">
-      <input id="api_pwd" name="api_pwd" class="form-control form-field-small" value="<%= h(params[:api_pwd]) %>" pattern="^[0-9a-z]*$" placeholder="API PASSWORD" type="password">
-      <input id="shop_name" name="shop_name" class="form-control form-field-small" value="<%= h(params[:shop_name]) %>" pattern="^[0-9a-z]*$" placeholder="SHOP NAME">
-      <input type="submit" class="btn btn-primary" value="Set Connection">
-    <form>
+      <div class="form-group">
+        <input id="api_key" name="api_key" class="form-control form-field-small" value="<%= h(params[:api_key]) %>" pattern="^[0-9a-z]*$" placeholder="API_KEY">
+        <input id="api_pwd" name="api_pwd" class="form-control form-field-small" value="<%= h(params[:api_pwd]) %>" pattern="^[0-9a-z]*$" placeholder="API PASSWORD" type="password">
+        <input id="shop_name" name="shop_name" class="form-control form-field-small" value="<%= h(params[:shop_name]) %>" pattern="^[0-9a-z]*$" placeholder="SHOP NAME">
+      </div>
+      <div class="form-group" style="margin-top:20px">
+        <input type="submit" class="btn btn-primary" value="Set Connection">
+      </div>
+    </form>
   <% else %>
     <form class="form-inline" id="connect" method="post" action="/disconnect">
+      Currently connected as <%= shop_name %>
+      <div class="form-group" style="display:block; margin-top:20px">
         <input type="submit" class="btn btn-primary" value="Disconnect">
+      </div>
     </form>
   <% end %>
-  <hr>
+  <form class="form-inline" id="connect" method="post" action="/quit">
+    <div class="form-group" style="display:block; margin-top:20px">
+      <input type="submit" class="btn btn-primary" value="Quit Application">
+    </div>
+  </form>
 </div>
 

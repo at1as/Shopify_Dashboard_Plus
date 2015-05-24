@@ -5,7 +5,6 @@ require 'tilt/erubis'
 require 'shopify_api'
 require 'uri'
 require 'chartkick'
-require_relative 'shopify-dashboard-plus/version'
 
 configure do
   set :public_dir, File.expand_path('../../public', __FILE__)
@@ -25,8 +24,8 @@ configure do
     begin
       shop_url = "https://#{API_KEY}:#{PASSWORD}@#{SHOP_NAME}.myshopify.com/admin"
       ShopifyAPI::Base.site = shop_url
-      puts shop_url
       shop = ShopifyAPI::Shop.current
+      $shop_name = SHOP_NAME
       $connected = true
     rescue Exception => e
       puts "\nFailed to connect using provided credentials...(Exception: #{e}\n #{HELP}"
@@ -40,14 +39,14 @@ helpers do
   include Rack::Utils
   alias_method :h, :escape_html
 
-  # Connection Helpers
+  # Connection & Setup Helpers
   def set_connection(key, pwd, name)
     begin
       shop_url = "https://#{key}:#{pwd}@#{name}.myshopify.com/admin"
       ShopifyAPI::Base.site = shop_url
       shop = ShopifyAPI::Shop.current
+      $shop_name = name
       connection_open
-      puts "YESSSS #{connected?}"
     rescue
       connection_closed
     end
@@ -63,6 +62,10 @@ helpers do
 
   def connected?
     $connected
+  end
+
+  def shop_name
+    $shop_name
   end
 
 
@@ -159,7 +162,9 @@ helpers do
   def get_detailed_revenue_metrics(start_date, end_date = DateTime.now)
     desired_fields = ["total_price", "created_at", "billing_address", "currency", "line_items", "customer", "referring_site"]
     revenue_metrics = ShopifyAPI::Order.find(:all, :params => { :created_at_min => start_date, 
-                                                                :created_at_max => end_date, 
+                                                                :created_at_max => end_date,
+                                                                :page => 1,
+                                                                :limit => 250,
                                                                 :fields => desired_fields })
     
     # Revenue
@@ -205,7 +210,8 @@ helpers do
           referring_pages['None'] += 1
           referring_sites['None'] += 1
         else
-          host = URI(order.referring_site).host
+          host = URI(order.referring_site).host.downcase
+          host.start_with?('www.') ? host[4..-1] : host
           referring_pages[order.referring_site] += 1
           referring_sites[host] += 1
         end
@@ -264,10 +270,8 @@ get '/' do
   # If no date parameters are set, default both to today
   @today = date_today
 
-  from = (params[:from] if not params[:from].empty? rescue nil) || params[:to] || @today
+  from = (params[:from] if not params[:from].empty? rescue nil) || (params[:to] if not params[:to].empty? rescue nil) || @today
   to = (params[:to] if not params[:to].empty? rescue nil) || @today
-
-  puts from, to, "FT ^"
 
   @metrics = get_detailed_revenue_metrics(from, to)
   
@@ -291,4 +295,17 @@ end
 post '/disconnect' do
   API_KEY, API_PWD, SHP_NAME = "", "", ""
   connection_closed
+
+  erb :connect
 end
+
+## Kills process (work around for Vegas Gem not catching SIGINT)
+post '/quit' do
+  redirect to('/'), 200
+end
+
+after '/quit' do
+  puts "\nExiting..."
+  exit!
+end
+
