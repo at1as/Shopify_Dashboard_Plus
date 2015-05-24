@@ -8,7 +8,7 @@ require 'date'
 Gem::Specification.new do |spec|
   spec.name          = "shopify_dashboard_plus"
   spec.date          = Date.today.to_s
-  spec.version       = "0.0.1"
+  spec.version       = "0.0.2"
   spec.authors       = ["Jason Willems"]
   spec.email         = ["jason@willems.ca"]
   spec.summary       = "Extended dashboard for shopify admin"
@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_runtime_dependency "sinatra", "~>1.4", ">= 1.4.5"
-  spec.add_runtime_dependency "tilt", "~>2.0"
+  spec.add_runtime_dependency "tilt"
   spec.add_runtime_dependency "shopify_api", "~>4.0", ">= 4.0.3"
   spec.add_runtime_dependency "chartkick", "~>1.3", ">= 1.3.2"
   spec.add_runtime_dependency "vegas", "~> 0.1", ">= 0.1.11"
