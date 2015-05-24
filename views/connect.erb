@@ -14,7 +14,8 @@
     </form>
   <% else %>
     <form class="form-inline" id="connect" method="post" action="/disconnect">
-      Currently connected as <%= shop_name %>
+      Currently connected as <%= shop_name %><br/>
+      <a href="/">Back to Metrics</a>
       <div class="form-group" style="display:block; margin-top:20px">
         <input type="submit" class="btn btn-primary" value="Disconnect">
       </div>

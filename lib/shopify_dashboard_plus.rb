@@ -211,7 +211,7 @@ helpers do
           referring_sites['None'] += 1
         else
           host = URI(order.referring_site).host.downcase
-          host.start_with?('www.') ? host[4..-1] : host
+          host = host.start_with?('www.') ? host[4..-1] : host
           referring_pages[order.referring_site] += 1
           referring_sites[host] += 1
         end
