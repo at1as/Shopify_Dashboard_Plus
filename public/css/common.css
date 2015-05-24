@@ -25,6 +25,9 @@ h3.section-divider{
   padding-top: 5px;
   text-align: center;
 }
+.flash{
+	color:red;
+}
 
 /*
 // NOTE: media queries not working will chartkick, 

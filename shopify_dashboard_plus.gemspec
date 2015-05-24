@@ -8,7 +8,7 @@ require 'date'
 Gem::Specification.new do |spec|
   spec.name          = "shopify_dashboard_plus"
   spec.date          = Date.today.to_s
-  spec.version       = "0.0.2"
+  spec.version       = "0.0.3"
   spec.authors       = ["Jason Willems"]
   spec.email         = ["jason@willems.ca"]
   spec.summary       = "Extended dashboard for shopify admin"

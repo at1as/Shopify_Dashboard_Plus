@@ -2,6 +2,7 @@
   <h2 style="margin-top:10px; margin-bottom:20px">Connect to your Shopify Admin</h2>
   <hr>
   <% if not connected? %>
+    <% if $flash %><p class="flash"><%= $flash %><% end %>
     <form class="form-inline" id="connect" method="post" action="/connect">
       <div class="form-group">
         <input id="api_key" name="api_key" class="form-control form-field-small" value="<%= h(params[:api_key]) %>" pattern="^[0-9a-z]*$" placeholder="API_KEY">
@@ -9,21 +10,23 @@
         <input id="shop_name" name="shop_name" class="form-control form-field-small" value="<%= h(params[:shop_name]) %>" pattern="^[0-9a-z]*$" placeholder="SHOP NAME">
       </div>
       <div class="form-group" style="margin-top:20px">
-        <input type="submit" class="btn btn-primary" value="Set Connection">
+        <input type="submit" class="btn btn-primary" style="width:200px" value="Set Connection">
       </div>
     </form>
   <% else %>
     <form class="form-inline" id="connect" method="post" action="/disconnect">
-      Currently connected as <%= shop_name %><br/>
-      <a href="/">Back to Metrics</a>
+      Currently connected as <b><%= shop_name %></b><br/>
+      <div style="margin-top:10px">
+        <a href="/">Back to Metrics</a>
+      </div>
       <div class="form-group" style="display:block; margin-top:20px">
-        <input type="submit" class="btn btn-primary" value="Disconnect">
+        <input type="submit" class="btn btn-primary" style="width:200px" value="Disconnect">
       </div>
     </form>
   <% end %>
   <form class="form-inline" id="connect" method="post" action="/quit">
     <div class="form-group" style="display:block; margin-top:20px">
-      <input type="submit" class="btn btn-primary" value="Quit Application">
+      <input type="submit" class="btn btn-primary" style="width:200px" value="Quit Application">
     </div>
   </form>
 </div>

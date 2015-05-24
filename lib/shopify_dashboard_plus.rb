@@ -11,6 +11,8 @@ configure do
   set :views, File.expand_path('../../views', __FILE__)
 
   $connected ||= false
+  $flash ||= nil
+  $metrics ||= false
 
   HELP = "Set global environment variables before calling script, or call with ENV variables: \
   \t\nExample: SHP_KEY=\"<shop_key>\" SHP_PWD=\"<shop_password>\" SHP_NAME=\"<shop_name>\" ./lib/shopify-dashboard.rb\n"
@@ -39,7 +41,8 @@ helpers do
   include Rack::Utils
   alias_method :h, :escape_html
 
-  # Connection & Setup Helpers
+  ## Connection & Setup Helpers
+  # Bind to Shopify Store
   def set_connection(key, pwd, name)
     begin
       shop_url = "https://#{key}:#{pwd}@#{name}.myshopify.com/admin"
@@ -69,7 +72,7 @@ helpers do
   end
 
 
-  # Generic Helpers
+  ## Generic Helpers
   def hash_to_list(unprocessed_hash)
     return_list = []
     unprocessed_hash.each do |key, value|
@@ -81,8 +84,24 @@ helpers do
     DateTime.now.strftime('%Y-%m-%d')
   end
 
+  # Validate User Date is valid and start date <= end date
+  def validate_date_range(from, to)
+    interval_start = DateTime.parse(from) rescue nil
+    interval_end = DateTime.parse(to) rescue nil
 
-  # Metrics Helpers
+    if interval_start && interval_end
+      if interval_start <= interval_end
+        return true
+      else
+        return false
+      end
+    end
+    
+    false
+  end
+
+
+  ## Metrics Helpers
   def get_total_revenue(orders)
     revenue = orders.collect{|order| order.total_price.to_f }.inject(:+).round(2) rescue 0
     revenue ||= 0
@@ -212,7 +231,10 @@ helpers do
         else
           host = URI(order.referring_site).host.downcase
           host = host.start_with?('www.') ? host[4..-1] : host
-          referring_pages[order.referring_site] += 1
+          page = order.referring_site
+          page = page.start_with?('http://') ? page[7..-1] : page
+          page = page.start_with?('https://') ? page[8..-1] : page
+          referring_pages[page] += 1
           referring_sites[host] += 1
         end
         order.line_items.each do |line_item|
@@ -221,8 +243,12 @@ helpers do
             revenue_per_referral_site['None'] += line_item.price.to_f
           else
             host = URI(order.referring_site).host
-            revenue_per_referral_page[order.referring_site] += line_item.price.to_f
+            host = host.start_with?('www.') ? host[4..-1] : host
+            page = order.referring_site
+            page = page.start_with?('http://') ? page[7..-1] : page
+            page = page.start_with?('https://') ? page[8..-1] : page
             revenue_per_referral_site[host] += line_item.price.to_f
+            revenue_per_referral_page[page] += line_item.price.to_f
           end
         end
       end
@@ -262,6 +288,11 @@ helpers do
   end
 end
 
+before do
+  $flash = nil
+  $metrics = false
+end
+
 
 get '/' do
   redirect '/connect' unless connected?
@@ -273,7 +304,12 @@ get '/' do
   from = (params[:from] if not params[:from].empty? rescue nil) || (params[:to] if not params[:to].empty? rescue nil) || @today
   to = (params[:to] if not params[:to].empty? rescue nil) || @today
 
-  @metrics = get_detailed_revenue_metrics(from, to)
+  if validate_date_range(from, to)
+    @metrics = get_detailed_revenue_metrics(from, to)
+    $metrics = true
+  else
+    $flash = "Invalid Dates. Please use format YYYY-MM-DD"
+  end
   
   erb :report
 end
@@ -288,6 +324,7 @@ post '/connect' do
   if connected?
     redirect '/'
   else
+    $flash = "Failed to Connect..."
     erb :connect
   end
 end

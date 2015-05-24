@@ -2,21 +2,24 @@
   <div class="well" style="text-align:center; max-width:600px; margin-left:auto; margin-right:auto; margin-top:30px">
     <h2 style="margin-top:10px; margin-bottom:20px">Shopify Dashboard Plus</h2>
     <hr>
-    <div style="margin-bottom:10px;">
-      Retrieve metrics over the following period <% if shop_name %>for: <br/><i><%= shop_name %>.myshopify.com/admin</i><% end %>
+    <% if $flash %><p class="flash"><%= $flash %></p><% end %>
+    <div style="margin-bottom:20px;">
+      Retrieve metrics over the following period <% if shop_name %>for: <br/><i><b><%= shop_name %>.myshopify.com/admin</b></i><% end %>
     </div>
     <form class="form-inline" id="set-date" method="get" action="/">
-      <h4>
+      <h4 style="margin-bottom:10px">
         <input id="from" name="from" class="form-control form-field-small" value="<%= h(params[:from]) %>" pattern="^[1-2][0-9]{3}-[0-3][0-9]-[0-3][0-9]$" placeholder="<%= @today %>">
         to
         <input id="to" name="to" class="form-control form-field-small" value="<%= h(params[:to]) %>" pattern="^[1-2][0-9]{3}-[0-3][0-9]-[0-3][0-9]$"% placeholder="<%= @today %>">
-        <input type="submit" class="btn btn-primary" value="Get Data">
       </h4>
+        <input type="submit" class="btn btn-primary" value="Get Data" style="width:200px">
     <form>
-    <a href="/connect">Application Configuration</a>
+    <div style="margin-top:10px">
+      <a href="/connect">Application Configuration</a>
+    </div>
   </div>
 
-
+  <% if $metrics %>
   <h3 class="section-divider">Sales</h3>
   <div class="graph-container">
     <div class="graph-border">
@@ -125,6 +128,6 @@
     }
   </script>
   -->
-
+  <% end %>
 </div>
 
