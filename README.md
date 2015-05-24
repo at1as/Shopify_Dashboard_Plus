@@ -1,4 +1,4 @@
-# Shopify-Dashboard-Plus
+# Shopify_Dashboard_Plus[![Gem Version](https://badge.fury.io/rb/shopify_dashboard_plus.svg)](http://badge.fury.io/rb/shopify_dashboard_plus)
 Pretty Dashboard for Shopify Admin with lots of graphs.
 
 ## Screenshots
@@ -37,14 +37,20 @@ Choose the interval over which to get data and see it displayed as:
 * Revenue Per Specific Referral Site Page
 
 ## Usage
-* To install manually: `git clone https://github.com/at1as/Shopify_Dashboard_Plus.git`
-* To install via the gem: `gem install shopify_dashboard_plus`
-* For dependencies see: `shopify_dashboard_plus.gemfile`
+* To install manually: 
+  * `git clone https://github.com/at1as/Shopify_Dashboard_Plus.git`
+* To install via the gem: 
+  * `gem install shopify_dashboard_plus`
+  * Note: Gem build will generally trail the repo by days-to-weeks
+* For dependencies see: 
+  * `shopify_dashboard_plus.gemfile`
 * Retrieve `API Key`, `Password` and `Shop Name` for your store from Shopify Admin
-* `SHP_KEY="my_key" SHP_PWD="my_password" SHP_NAME="my_shop" ./lib/shopify_dashboard_plus.rb`
+* Run (key, password & name can be passed as environment variables, or later thorugh the UI):
+  * `SHP_KEY="my_key" SHP_PWD="my_password" SHP_NAME="my_shop" ./lib/shopify_dashboard_plus.rb`
 
 ## TODO
 
 * Regex on front end doesn't work in Safari
 * Backend validation of dates
 * Not all floats render with a two-digit precision
+* Limited to 250 results
