@@ -28,6 +28,11 @@ h3.section-divider{
 .flash{
 	color:red;
 }
+.date-input{
+	width:100px;
+	margin-left:auto;
+	margin-right:auto;
+}
 
 /*
 // NOTE: media queries not working will chartkick, 

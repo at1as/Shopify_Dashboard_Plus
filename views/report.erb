@@ -7,9 +7,9 @@
     </div>
     <form class="form-inline" id="set-date" method="get" action="/">
       <h4 style="margin-bottom:10px">
-        <input style="width:100px" id="from" name="from" class="form-control form-field-small" value="<%= h(params[:from]) %>" pattern="^[1-2][0-9]{3}-[0-3][0-9]-[0-3][0-9]$" placeholder="<%= @today %>">
+        <input id="from" name="from" class="form-control form-field-small date-input" value="<%= h(params[:from]) %>" pattern="^[1-2][0-9]{3}-[0-3][0-9]-[0-3][0-9]$" placeholder="<%= @today %>">
         to
-        <input style="width:100px" id="to" name="to" class="form-control form-field-small" value="<%= h(params[:to]) %>" pattern="^[1-2][0-9]{3}-[0-3][0-9]-[0-3][0-9]$"% placeholder="<%= @today %>">
+        <input id="to" name="to" class="form-control form-field-small date-input" value="<%= h(params[:to]) %>" pattern="^[1-2][0-9]{3}-[0-3][0-9]-[0-3][0-9]$"% placeholder="<%= @today %>">
       </h4>
         <input type="submit" class="btn btn-primary" value="Get Data" style="width:200px">
     <form>

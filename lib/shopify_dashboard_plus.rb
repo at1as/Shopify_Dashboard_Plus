@@ -8,19 +8,20 @@ require 'chartkick'
 require_relative 'shopify_dashboard_plus/version'
 
 configure do
-  set :public_dir, "#{__dir__}/../../public"
-  set :views, "#{__dir__}/../../views"
+  set :public_dir, "#{__dir__}/../public"
+  set :views, "#{__dir__}/../views"
 
   $connected ||= false
-  $flash ||= nil
   $metrics ||= false
+  $flash ||= nil
 
   HELP = <<-END
   Set global variables through the WebUI or call with the correct ENV variables:
     Example: SHP_KEY=\"<shop_key>\" SHP_PWD=\"<shop_password>\" SHP_NAME=\"<shop_name>\" ./lib/shopify-dashboard.rb
   END
 
-  # Connect if Environment variables were set
+  # If Environment variables were set connect to Shopify Admin immediately
+  # Refuse to start server if variables are passed but incorrect
   if ENV["SHP_KEY"] && ENV["SHP_PWD"] && ENV["SHP_NAME"]
     API_KEY = ENV["SHP_KEY"]
     PASSWORD = ENV["SHP_PWD"]
@@ -35,6 +36,25 @@ configure do
     rescue Exception => e
       puts "\nFailed to connect using provided credentials...(Exception: #{e}\n #{HELP}"
       exit
+    end
+  end
+
+  
+  # When adding 44.95.round(2) + 940.6.round(2) the precision of the result will be 985.5500000000001
+  # In a sample of 100_000_000_000 entries, the precision will round up cents
+  # Since all numbers are currency, the plus method will trim to two decimals
+  # Numbers returned as: 44, 44.5, or 44.51
+  class Fixnum
+    def plus(amount)
+      result = self + (amount.to_f rescue 0)
+      result.round(2)
+    end
+  end
+
+  class Float
+    def plus(amount)
+      result = self + (amount.to_f rescue 0)
+      result.round(2)
     end
   end
 end
@@ -98,9 +118,7 @@ helpers do
     interval_end = DateTime.parse(to) rescue nil
 
     if interval_start && interval_end
-      if interval_start <= interval_end
-        return true
-      end
+      return true if interval_start <= interval_end
     end
     
     false
@@ -151,7 +169,7 @@ helpers do
       name_hash.each_with_index do |item, index|
         consolidated_data = Hash.new(0)
         item[:data].each do |purchase_entry|
-          consolidated_data[purchase_entry[0]] += purchase_entry[1]
+          consolidated_data[purchase_entry[0]] = consolidated_data[purchase_entry[0]].plus(purchase_entry[1])
         end
         name_hash[index][:data] = hash_to_list(consolidated_data)
       end
@@ -201,19 +219,16 @@ helpers do
     # Referrals
     referring_pages = Hash.new(0)
     referring_sites = Hash.new(0)
-    revenue_per_referral_page = Hash.new(0)
-    revenue_per_referral_site = Hash.new(0)
+    revenue_per_referral_page = Hash.new(0.0)
+    revenue_per_referral_site = Hash.new(0.0)
 
 
     # Iterate thorugh all returned metrics to extract information
     revenue_metrics.each do |order|
       
-      if order.attributes['currency']
-        currencies[order.currency] += 1
-      end
-      if order.attributes['billing_address']
-        sales_per_country[order.billing_address.country] += 1
-      end
+      currencies[order.currency] += 1 if order.attributes['currency']
+      sales_per_country[order.billing_address.country] += 1 if order.attributes['billing_address']
+      
       if order.attributes['referring_site']
         if order.attributes['referring_site'].empty?
           referring_pages['None'] += 1
@@ -226,34 +241,27 @@ helpers do
         end
         order.line_items.each do |line_item|
           if order.attributes['referring_site'].empty?
-            revenue_per_referral_page['None'] += line_item.price.to_f rescue 0
-            revenue_per_referral_site['None'] += line_item.price.to_f rescue 0
+            revenue_per_referral_page['None'] = revenue_per_referral_page['None'].plus(line_item.price)
+            revenue_per_referral_site['None'] = revenue_per_referral_site['None'].plus(line_item.price)
           else
             host = get_host(order.referring_site)
             page = strip_protocol(order.referring_site)
-            revenue_per_referral_site[host] += line_item.price.to_f.round(2) rescue 0
-            revenue_per_referral_page[page] += line_item.price.to_f.round(2) rescue 0
+            revenue_per_referral_site[host] = revenue_per_referral_site[host].plus(line_item.price)
+            revenue_per_referral_page[page] = revenue_per_referral_page[page].plus(line_item.price)
           end
         end
       end
-
-      # Remove trailing digits (ex. 44.95.round(2) + 940.6.round(2) = 985.5500000000001)
-      # Note that if the sample has 100_000_000_000 entries, the precision will
-      # begin to round up cents. There is a safer way to accomplish this
-      revenue_per_referral_site.map{|key, value| [key, value.round(2)] }.to_h
-      revenue_per_referral_page.map{|key, value| [key, value.round(2)] }.to_h
 
 
       # Iterate over order line items for: product name, product price & customer id
       # Use to populate: products, prices, revenue_per_price_point, revenue_per_product,
       #                  revenue_per_country, customer_sales, and to map customer name to id
       order.line_items.each do |line_item|
-        products[line_item.title] += 1
         prices[line_item.price] += 1
+        products[line_item.title] += 1
 
-        # TODO: Clean up precision
-        revenue_per_price_point[line_item.price] += line_item.price.to_f.round(2) rescue 0
-        revenue_per_product[line_item.title] += line_item.price.to_f.round(2) rescue 0
+        revenue_per_price_point[line_item.price] = revenue_per_price_point[line_item.price].plus(line_item.price)
+        revenue_per_product[line_item.title] = revenue_per_product[line_item.title].plus(line_item.price)
         
         # Store customer as "<firstname> <lastname> (<email>)" such that uniqueness is gaurenteed
         customer_name = "#{order.customer.first_name} #{order.customer.last_name} (#{order.customer.email})"
