@@ -126,6 +126,14 @@ helpers do
 
 
   ## Metrics Helpers
+  def display_as_currency(value)
+    ShopifyAPI::Shop.current.money_with_currency_format.gsub("{{amount}}", value.to_s) rescue "N/A"
+  end
+
+  def get_date_range(first, last)
+    DateTime.parse(last).mjd - DateTime.parse(first).mjd
+  end
+
   def get_total_revenue(orders)
     orders.collect{|order| order.total_price.to_f }.inject(:+).round(2) rescue 0
   end
@@ -133,7 +141,7 @@ helpers do
   def get_daily_revenues(start_date, end_date, orders)
     # Create hash entry for total interval over which to inspect sales
     revenue_per_day = {}
-    days = DateTime.parse(end_date).mjd - DateTime.parse(start_date).mjd
+    days = get_date_range(start_date, end_date)
     (0..days).each{ |day| revenue_per_day[(DateTime.parse(end_date) - day).strftime("%Y-%m-%d")] = 0 }
 
     # Retreive orders between start and end date (up to 50)
@@ -181,7 +189,7 @@ helpers do
 
   def get_detailed_revenue_metrics(start_date, end_date = DateTime.now)
 
-    desired_fields = ["total_price", "created_at", "billing_address", "currency", "line_items", "customer", "referring_site"]
+    desired_fields = ["total_price", "created_at", "billing_address", "currency", "line_items", "customer", "referring_site", "discount_codes"]
     revenue_metrics = ShopifyAPI::Order.find(:all, :params => { :created_at_min => start_date + " 0:00",
                                                                 :created_at_max => end_date + " 23:59:59",
                                                                 :page => 1,
@@ -203,9 +211,11 @@ helpers do
     products = Hash.new(0)
     revenue_per_product = Hash.new(0)
 
-    # Prices
+    # Prices & Discounts
     prices = Hash.new(0)
     revenue_per_price_point = Hash.new(0)
+    discounts_value = Hash.new(0.0)
+    discounts_quantity = Hash.new(0)
     
     # Customers
     customers = []
@@ -226,10 +236,21 @@ helpers do
     # Iterate thorugh all returned metrics to extract information
     revenue_metrics.each do |order|
       
+      # Currencies & per country sales
       currencies[order.currency] += 1 if order.attributes['currency']
       sales_per_country[order.billing_address.country] += 1 if order.attributes['billing_address']
-      
+
+      # Discount Codes
+      if order.attributes['discount_codes']
+        order.discount_codes.each do |discount_code|
+          discounts_value[discount_code.code] = discounts_value[discount_code.code].plus(discount_code.amount)
+          discounts_quantity[discount_code.code] += 1
+        end
+      end
+
+      # Site & Page Referrals 
       if order.attributes['referring_site']
+
         if order.attributes['referring_site'].empty?
           referring_pages['None'] += 1
           referring_sites['None'] += 1
@@ -239,6 +260,7 @@ helpers do
           referring_pages[page] += 1
           referring_sites[host] += 1
         end
+
         order.line_items.each do |line_item|
           if order.attributes['referring_site'].empty?
             revenue_per_referral_page['None'] = revenue_per_referral_page['None'].plus(line_item.price)
@@ -293,7 +315,9 @@ helpers do
                 :average_revenue => avg_revenue,
                 :daily_revenue => daily_revenue,
                 :revenue_per_product => revenue_per_product,
-                :revenue_per_price_point => (revenue_per_price_point.sort_by{|x,y| x.to_f }.to_h rescue {})
+                :revenue_per_price_point => (revenue_per_price_point.sort_by{|x,y| x.to_f }.to_h rescue {}),
+                :discounts_savings => discounts_value,
+                :discounts_quantity => discounts_quantity
               }
 
     return metrics

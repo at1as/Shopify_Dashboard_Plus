@@ -20,6 +20,8 @@ Choose the interval over which to get data and see it displayed as:
 * Proportion of Items Sold Per Price Point
 * Number of Items Sold Per Price Point
 * Revenue per Price Point
+* Total Savings per Discount Code
+* Number of Uses per Discount Code
 
 *Countries*
 * Proportion of Sales per Country
@@ -50,5 +52,4 @@ Choose the interval over which to get data and see it displayed as:
 
 ## TODO
 
-* Not all floats render with a two-digit precision
 * Limited to 250 results

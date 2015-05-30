@@ -1,3 +1,6 @@
+body{
+	background-color:#444;
+}
 .graph-container{
 	width:100%;
 	text-align:center;
@@ -5,7 +8,7 @@
 .graph-border{
   border:1px solid #e3e3e3;
   border-radius:4px;
-  background-color:#f5f5f5;
+  background-color:#fff;
   padding-right:10px;
   padding-left:10px;
   margin-left:auto;
@@ -13,6 +16,26 @@
   padding-bottom:5px;
   margin-bottom:10px;
   max-width:1200px;
+}
+.graph-seperator{
+	margin-top:0px;
+	margin-bottom:0px;
+	margin-left:40px;
+	margin-right:40px;
+}
+.graph-metrics{
+	margin-left:20px;
+	margin-right:20px;
+	text-align:center;
+	display:inline-block;
+}
+.graph-metric{
+	margin-left:20px;
+	margin-right:20px;
+	display:inline-block;
+}
+.grey{
+	color:#666;
 }
 h3.section-divider{
   background-color: #666;
@@ -24,6 +47,12 @@ h3.section-divider{
   padding-bottom: 5px;
   padding-top: 5px;
   text-align: center;
+}
+h3{
+	font-weight:300;
+}
+h4{
+	color:#555;
 }
 .flash{
 	color:red;
