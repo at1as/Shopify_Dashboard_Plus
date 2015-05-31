@@ -44,15 +44,23 @@ h3.section-divider{
   margin-bottom:15px;
   margin-left: -10px;
   margin-right: -10px;
-  padding-bottom: 5px;
-  padding-top: 5px;
+  padding-bottom: 10px;
+  padding-top: 10px;
   text-align: center;
+}
+h3.money{
+	margin-top:0px;
+	color:#337ab7;
 }
 h3{
 	font-weight:300;
 }
 h4{
 	color:#555;
+}
+h4.graph-heading{
+	font-weight:400;
+	font-size:22px;
 }
 .flash{
 	color:red;
