@@ -14,6 +14,17 @@ configure do
   $connected ||= false
   $metrics ||= false
   $flash ||= nil
+  
+  DESIRED_FIELDS = [
+    "total_price",
+    "created_at",
+    "billing_address",
+    "currency",
+    "line_items",
+    "customer",
+    "referring_site",
+    "discount_codes"
+  ]
 
   HELP = <<-END
   Set global variables through the WebUI or call with the correct ENV variables:
@@ -87,9 +98,13 @@ helpers do
     $connected = true
   end
 
-  def connected?; $connected; end
+  def connected?
+    $connected
+  end
 
-  def shop_name; $shop_name; end
+  def shop_name
+    $shop_name
+  end
 
 
   ## Generic Helpers
@@ -100,38 +115,27 @@ helpers do
   def days(num)
     num.to_i == 1 ? "#{num} Day" : "#{num} Days"
   end
-  
-  def hash_to_list(unprocessed_hash)
-    return_list = []
-    unprocessed_hash.each {|key, value| return_list.append([key, value])}
-  end
 
   def strip_protocol(page)
-    page = page.start_with?('http://') ? page[7..-1] : page
-    page = page.start_with?('https://') ? page[8..-1] : page
+    page.sub(/\Ahttps?:\/\//, "")
   end
 
   def get_host(site)
-    host = URI(site).host.downcase
-    host = host.start_with?('www.') ? host[4..-1] : host
+    host = URI(site).host.downcase.sub(/\Awww\./, "")
   end
 
-  # Validate User Date is valid and start date <= end date
-  def validate_date_range(from, to)
-    interval_start = DateTime.parse(from) rescue nil
-    interval_end = DateTime.parse(to) rescue nil
-
-    if interval_start && interval_end
-      return true if interval_start <= interval_end
-    end
-    
+  def date_range_valid?(from, to)
+    DateTime.parse(from) <= DateTime.parse(to)
+  rescue ArgumentError
     false
   end
 
 
   ## Metrics Helpers
   def display_as_currency(value)
-    ShopifyAPI::Shop.current.money_with_currency_format.gsub("{{amount}}", value.to_s) rescue "N/A"
+    ShopifyAPI::Shop.current.money_with_currency_format.gsub("{{amount}}", value.to_s)
+  rescue
+    'N/A'
   end
 
   def get_date_range(first, last)
@@ -140,38 +144,50 @@ helpers do
 
   def get_total_revenue(collections)
     # collections is an array of ActiveRecord::Collections, each containing orders
-    collections.collect{|orders| orders.collect{|order| order.total_price.to_f }.inject(:+).round(2) }.inject(:+).round(2) rescue 0
+    # TODO: make more efficient
+    totals = collections.flat_map do |orders|
+      orders.map { |order| order.total_price.to_f }
+    end
+    totals.inject(:+).round(2)
+  rescue
+    0
+  end
+
+  def get_average_revenue(total_revenue, start_date, end_date)
+    (total_revenue/(DateTime.parse(end_date).mjd - DateTime.parse(start_date).mjd + 1)).round(2)
+  rescue
+    'N/A'
   end
   
   def get_daily_revenues(start_date, end_date, collections)
-    # Create hash entry for total interval over which to inspect sales
+    # Create hash entry for every day within interval over which to inspect sales
     revenue_per_day = {}
     days = get_date_range(start_date, end_date)
     (0..days).each{ |day| revenue_per_day[(DateTime.parse(end_date) - day).strftime("%Y-%m-%d")] = 0 }
 
     # Retreive array of ActiveRecord::Collections, each containing orders between the start and end date
-    revenue = collections.collect{|orders| orders.collect{|order| [order.created_at, order.total_price.to_f]}}
+    revenue = collections.map{ |orders| orders.map{ |order| [order.created_at, order.total_price.to_f] }}
     
     # Filter order details into daily totals and return
     revenue.each do |order|
-      order.each do |sale|
-        day_index = DateTime.parse(sale[0]).strftime('%Y-%m-%d')
-        revenue_per_day[day_index] = revenue_per_day[day_index].plus(sale[1])
+      order.each do |(date, total)|
+        day_index = DateTime.parse(date).strftime('%Y-%m-%d')
+        revenue_per_day[day_index] = revenue_per_day[day_index].plus(total)
       end
     end
     revenue_per_day
   end
 
-  def hash_to_graph_format(sales, merge_results = false)
+  def hash_to_graph_format(sales, merge_results: false)
     
     # ChartKick requires a strange format to build graphs. For instance, an array of
     #   {:name => <item_name>, :data => [[<customer_id>, <item_price>], [<customer_id>, <item_price>]]}
     # places <customer_id> on the independent (x) axis, and stacks each item (item_name) on the y-axis by price (item_price)
 
-    name_hash = sales.collect{|sale| {:name => sale[:name], :data => []}}.uniq
+    name_hash = sales.map{ |sale| {:name => sale[:name], :data => []} }.uniq
     
-    sales.collect do |old_hash|
-      name_hash.collect do |new_hash|
+    sales.map do |old_hash|
+      name_hash.map do |new_hash|
         if old_hash[:name] == new_hash[:name]
           new_hash[:data].push(old_hash[:data])
         end
@@ -187,7 +203,7 @@ helpers do
         item[:data].each do |purchase_entry|
           consolidated_data[purchase_entry[0]] = consolidated_data[purchase_entry[0]].plus(purchase_entry[1])
         end
-        name_hash[index][:data] = hash_to_list(consolidated_data)
+        name_hash[index][:data] = consolidated_data.to_a
       end
     end
 
@@ -196,14 +212,13 @@ helpers do
 
   # Return order query parameters hash
   def order_parameters_paginate(start_date, end_date, page)
-    desired_fields = ["total_price", "created_at", "billing_address", "currency", "line_items", "customer", "referring_site", "discount_codes"]
-    parameters = {  
-                    :created_at_min => start_date + " 0:00", 
-                    :created_at_max => end_date + " 23:59:59", 
-                    :limit => 250,
-                    :page => page,
-                    :fields => desired_fields 
-                  }
+    {  
+      :created_at_min => start_date + " 0:00", 
+      :created_at_max => end_date + " 23:59:59", 
+      :limit => 250,
+      :page => page,
+      :fields => DESIRED_FIELDS 
+    }
   end
 
 
@@ -213,12 +228,12 @@ helpers do
 
     # Get first 250 results matching query
     params = order_parameters_paginate(start_date, end_date, 1)
-    revenue_metrics = [ShopifyAPI::Order.find(:all, :params => params )]
+    revenue_metrics = [ShopifyAPI::Order.find(:all, :params => params)]
     
     # If the amount of results equal to the limit (250) were returned, pass the query on to the next page (orders 251 to 500)
     while revenue_metrics.last.length == 250
       params = order_parameters_paginate(start_date, end_date, revenue_metrics.length + 1)
-      revenue_metrics << ShopifyAPI::Order.find(:all, :params => params )
+      revenue_metrics << ShopifyAPI::Order.find(:all, :params => params)
     end
 
     revenue_metrics
@@ -231,23 +246,21 @@ helpers do
 
     # Revenue
     total_revenue = get_total_revenue(revenue_metrics)
-    avg_revenue  = (total_revenue/(DateTime.parse(end_date).mjd - DateTime.parse(start_date).mjd + 1)).round(2) rescue "N/A"
+    avg_revenue = get_average_revenue(total_revenue, start_date, end_date)
     daily_revenue = get_daily_revenues(start_date, end_date, revenue_metrics)
-    max_daily_revenue = daily_revenue.max_by{|k,v| v}[1]
+    max_daily_revenue = daily_revenue.max_by{ |k,v| v }[1]
     duration = get_date_range(start_date, end_date) + 1
 
     # Countries & Currencies
     currencies = Hash.new(0)
     sales_per_country = Hash.new(0)
-    revenue_per_country = []
-    revenue_per_country_merged = []
+    revenue_per_country, revenue_per_country_merged = [], []
 
     # Products
-    products = Hash.new(0)
-    revenue_per_product = Hash.new(0)
+    products, revenue_per_product = Hash.new(0), Hash.new(0)
 
     # Prices & Discounts
-    sales = revenue_metrics.each{|collection| collection.length }.inject(:+).length
+    sales = revenue_metrics.each{ |collection| collection.length }.inject(:+).length
     prices = Hash.new(0)
     revenue_per_price_point = Hash.new(0)
     discounts_value = Hash.new(0.0)
@@ -255,18 +268,15 @@ helpers do
     
     # Customers
     customers = []
-    customer_sales = []
-    customer_sales_unmerged = []
+    customer_sales, customer_sales_unmerged = [], []
     customer_sales_by_name = []
 
     # Map customer names to their ID
     customer_details = {} 
 
     # Referrals
-    referring_pages = Hash.new(0)
-    referring_sites = Hash.new(0)
-    revenue_per_referral_page = Hash.new(0.0)
-    revenue_per_referral_site = Hash.new(0.0)
+    referring_pages, referring_sites = Hash.new(0), Hash.new(0)
+    revenue_per_referral_page, revenue_per_referral_site = Hash.new(0.0), Hash.new(0.0)
 
 
     # Iterate thorugh all returned metrics to extract information
@@ -333,7 +343,7 @@ helpers do
         end
 
         # Format data for display with chartkick
-        revenue_per_country_merged = hash_to_graph_format(revenue_per_country, true)
+        revenue_per_country_merged = hash_to_graph_format(revenue_per_country, merge_results: true)
         customer_sales_unmerged = hash_to_graph_format(customer_sales)
       end
     end
@@ -342,7 +352,7 @@ helpers do
                 :sales_per_country => sales_per_country,
                 :revenue_per_country => revenue_per_country_merged,
                 :products => products,
-                :prices => (prices.sort_by{|x,y| x.to_f }.to_h rescue {}),
+                :prices => (prices.sort_by{ |x,y| x.to_f }.to_h rescue {}),
                 :number_of_sales => sales,
                 :customer_sales => customer_sales_unmerged,
                 :referring_sites => (referring_sites.sort().to_h rescue {}),
@@ -355,7 +365,7 @@ helpers do
                 :max_daily_revenue => max_daily_revenue,
                 :duration => duration,
                 :revenue_per_product => revenue_per_product,
-                :revenue_per_price_point => (revenue_per_price_point.sort_by{|x,y| x.to_f }.to_h rescue {}),
+                :revenue_per_price_point => (revenue_per_price_point.sort_by{ |x,y| x.to_f }.to_h rescue {}),
                 :discounts_savings => discounts_value,
                 :discounts_quantity => discounts_quantity
               }
@@ -379,9 +389,9 @@ get '/' do
   from = (params[:from] if not params[:from].empty? rescue nil) || (params[:to] if not params[:to].empty? rescue nil) || @today
   to = (params[:to] if not params[:to].empty? rescue nil) || @today
 
-  if to > @today then to = @today end
+  to = @today if to > @today
 
-  if validate_date_range(from, to)
+  if date_range_valid?(from, to)
     @metrics = get_detailed_revenue_metrics(from, to)
     $metrics = true
   else
