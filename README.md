@@ -41,15 +41,14 @@ Choose the interval over which to get data and see it displayed as:
 ## Usage
 * To install manually: 
   * `git clone https://github.com/at1as/Shopify_Dashboard_Plus.git`
-* To install via the gem: 
+* To install using the gem: 
   * `gem install shopify_dashboard_plus`
-  * Note: Gem build will generally trail the repo by days-to-weeks
 * For dependencies see: 
   * `shopify_dashboard_plus.gemfile`
 * Retrieve `API Key`, `Password` and `Shop Name` for your store from Shopify Admin
 * Run (key, password & name can be passed as environment variables, or later thorugh the UI):
   * `SHP_KEY="my_key" SHP_PWD="my_password" SHP_NAME="my_shop" ./lib/shopify_dashboard_plus.rb`
 
-## TODO
+## Notes
+* Tested and developed with Ruby 2.1.2 on Mac OS 10.10
 
-* Limited to 250 results

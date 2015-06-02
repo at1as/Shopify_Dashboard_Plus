@@ -37,15 +37,15 @@
           <h3 class="money"><%= @metrics[:number_of_sales] %></h3>
         </div>
         <div class="graph-metric">
-          <h5 class="grey">Total Sales</h5> 
+          <h5 class="grey">Total Revenue</h5> 
           <h3 class="money"><%= display_as_currency @metrics[:total_revenue] %></h3>
         </div>
         <div class="graph-metric">
-          <h5 class="grey">Average Daily Sales</h5>
+          <h5 class="grey">Average Daily Revenue</h5>
           <h3 class="money"><%= display_as_currency @metrics[:average_revenue] %></h3>
         </div>
           <div class="graph-metric">
-          <h5 class="grey">Max Daily Sales</h5>
+          <h5 class="grey">Max Daily Revenue</h5>
           <h3 class="money"><%= display_as_currency @metrics[:max_daily_revenue] %></h3>
         </div>
       </div>
@@ -56,7 +56,7 @@
         Proportion of Sales per Product
       </h4>
       <hr class="graph-seperator">
-      <%= pie_chart @metrics[:products] %>
+      <%= pie_chart @metrics[:sales_per_product] %>
     </div>
 
     <div class="graph-border">
@@ -64,11 +64,11 @@
         Number of Sales per Product
       </h4>
       <hr class="graph-seperator">
-      <%= column_chart @metrics[:products] %>
+      <%= column_chart @metrics[:sales_per_product] %>
     </div>
 
     <div class="graph-border">
-      <h4>
+      <h4 class="graph-heading">
         Revenue per Product
       </h4>
       <hr class="graph-seperator">
@@ -80,23 +80,23 @@
   <h3 class="section-divider">Prices &amp; Discounts</h3>
   <div class="graph-container">
     <div class="graph-border">
-      <h4>
+      <h4 class="graph-heading">
         Proportion of Items Sold Per Price Point
       </h4>
       <hr class="graph-seperator">
-      <%= pie_chart @metrics[:prices] %>
+      <%= pie_chart @metrics[:sales_per_price] %>
     </div>
 
     <div class="graph-border">
-      <h4>
+      <h4 class="graph-heading">
         Number of Items Sold Per Price Point
       </h4>
       <hr class="graph-seperator">
-      <%= column_chart @metrics[:prices] %>
+      <%= column_chart @metrics[:sales_per_price] %>
     </div>
 
     <div class="graph-border">
-      <h4>
+      <h4 class="graph-heading">
         Revenue per Price Point
       </h4>
       <hr class="graph-seperator">
@@ -104,19 +104,19 @@
     </div>
 
     <div class="graph-border">
-      <h4>
+      <h4 class="graph-heading">
         Total Savings per Discount Code
       </h4>
       <hr class="graph-seperator">
-      <%= column_chart @metrics[:discounts_savings] %>
+      <%= column_chart @metrics[:discount_savings] %>
     </div>
 
     <div class="graph-border">
-      <h4>
+      <h4 class="graph-heading">
         Number of Uses per Discount Code
       </h4>
       <hr class="graph-seperator">
-      <%= column_chart @metrics[:discounts_quantity] %>
+      <%= column_chart @metrics[:discount_quantity] %>
     </div>
   </div>
 
@@ -124,7 +124,7 @@
   <h3 class="section-divider">Countries</h3>
   <div class="graph-container">
     <div class="graph-border">
-      <h4>
+      <h4 class="graph-heading">
         Proportion of Sales per Country
       </h4>
       <hr class="graph-seperator">
@@ -132,7 +132,7 @@
     </div>
 
     <div class="graph-border">
-      <h4>
+      <h4 class="graph-heading">
         Revenue per Country
       </h4>
       <hr class="graph-seperator">
@@ -144,11 +144,11 @@
   <h3 class="section-divider">Currencies</h3>
   <div class="graph-container">
     <div class="graph-border">
-      <h4>
+      <h4 class="graph-heading">
         Currencies Used per Purchase
       </h4>
       <hr class="graph-seperator">
-      <%= pie_chart @metrics[:currencies] %>
+      <%= pie_chart @metrics[:currencies_per_sale] %>
     </div>
   </div>
 
@@ -156,11 +156,11 @@
   <h3 class="section-divider">Customers</h3>
   <div class="graph-container">
     <div class="graph-border">
-      <h4>
+      <h4 class="graph-heading">
         Purchases per Customer
       </h4>
       <hr class="graph-seperator">
-      <%= column_chart @metrics[:customer_sales], stacked: true %>
+      <%= column_chart @metrics[:sales_per_customer], stacked: true %>
     </div>
   </div>
 
@@ -168,23 +168,23 @@
   <h3 class="section-divider">Traffic Metrics</h3>
   <div class="graph-container">
     <div class="graph-border">
-      <h4>
+      <h4 class="graph-heading">
         Referrals per Site
       </h4>
       <hr class="graph-seperator">
-      <%= column_chart @metrics[:referring_sites] %>
+      <%= column_chart @metrics[:referral_sites] %>
     </div>
 
     <div class="graph-border">
-      <h4>
+      <h4 class="graph-heading">
         Referrals per Site Pages
       </h4>
       <hr class="graph-seperator">
-      <%= column_chart @metrics[:referring_pages] %>
+      <%= column_chart @metrics[:referral_pages] %>
     </div>
 
     <div class="graph-border">
-      <h4>
+      <h4 class="graph-heading">
         Revenue Per Referral Site
       </h4>
       <hr class="graph-seperator">
@@ -192,7 +192,7 @@
     </div>
 
     <div class="graph-border">
-      <h4>
+      <h4 class="graph-heading">
         Revenue Per Referral Site Page
       </h4>
       <hr class="graph-seperator">
