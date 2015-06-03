@@ -1,16 +1,15 @@
 <div id="table_bounds" style="margin-left:10px; margin-right:10px; margin-bottom:40px">
   <div class="well" style="text-align:center; max-width:600px; margin-left:auto; margin-right:auto; margin-top:30px">
     <h2 style="margin-top:10px; margin-bottom:20px">Shopify Dashboard Plus</h2>
-    <hr>
     <% if $flash %><p class="flash"><%= $flash %></p><% end %>
     <div style="margin-bottom:20px;">
       Retrieve metrics over the following period <% if shop_name %>for: <br/><i><b><%= shop_name %>.myshopify.com/admin</b></i><% end %>
     </div>
     <form class="form-inline" id="set-date" method="get" action="/">
       <h4 style="margin-bottom:10px">
-        <input id="from" name="from" class="form-control form-field-small" value="<%= h(params[:from]) %>" pattern="^[1-2][0-9]{3}-[0-3][0-9]-[0-3][0-9]$" placeholder="<%= @today %>">
+        <input id="from" name="from" class="form-control form-field-small date-input" value="<%= h(params[:from]) %>" pattern="^[1-2][0-9]{3}-[0-3][0-9]-[0-3][0-9]$" placeholder="<%= @today %>">
         to
-        <input id="to" name="to" class="form-control form-field-small" value="<%= h(params[:to]) %>" pattern="^[1-2][0-9]{3}-[0-3][0-9]-[0-3][0-9]$"% placeholder="<%= @today %>">
+        <input id="to" name="to" class="form-control form-field-small date-input" value="<%= h(params[:to]) %>" pattern="^[1-2][0-9]{3}-[0-3][0-9]-[0-3][0-9]$"% placeholder="<%= @today %>">
       </h4>
         <input type="submit" class="btn btn-primary" value="Get Data" style="width:200px">
     <form>
@@ -23,40 +22,101 @@
   <h3 class="section-divider">Sales</h3>
   <div class="graph-container">
     <div class="graph-border">
-      <div id="daily_revenue" onclick="fullscreen_graph(this)" style="text-align:center"><h4>Daily Sales</h4></div>
+      <h4 class="graph-heading">
+        Daily Sales
+      </h4>
+      <hr class="graph-seperator">
       <%= column_chart @metrics[:daily_revenue], library: {hAxis: {direction: -1}} %>
-      <div style="text-align:center"><h5>Total Sales: <%= @metrics[:total_revenue] %></h5></div>
-      <div style="text-align:center"><h5>Average Per Day: <%= @metrics[:average_revenue] %></h5></div>
-    </div>
-    <div class="graph-border">
-      <div style="text-align:center"><h4>Proportion of Sales per Product</h4></div>
-      <%= pie_chart @metrics[:products] %>
+      <div class="graph-metrics">
+        <div class="graph-metric">
+          <h5 class="grey">Duration</h5>
+          <h3 class="money"><%= days(@metrics[:duration]) %></h3>
+        </div>
+        <div class="graph-metric">
+          <h5 class="grey">Number of Sales</h5>
+          <h3 class="money"><%= @metrics[:number_of_sales] %></h3>
+        </div>
+        <div class="graph-metric">
+          <h5 class="grey">Total Revenue</h5> 
+          <h3 class="money"><%= display_as_currency @metrics[:total_revenue] %></h3>
+        </div>
+        <div class="graph-metric">
+          <h5 class="grey">Average Daily Revenue</h5>
+          <h3 class="money"><%= display_as_currency @metrics[:average_revenue] %></h3>
+        </div>
+          <div class="graph-metric">
+          <h5 class="grey">Max Daily Revenue</h5>
+          <h3 class="money"><%= display_as_currency @metrics[:max_daily_revenue] %></h3>
+        </div>
+      </div>
     </div>
 
     <div class="graph-border">
-      <div style="text-align:center"><h4>Number of Sales per Product</h4></div>
-      <%= column_chart @metrics[:products] %>
+      <h4 class="graph-heading">
+        Proportion of Sales per Product
+      </h4>
+      <hr class="graph-seperator">
+      <%= pie_chart @metrics[:sales_per_product] %>
     </div>
+
     <div class="graph-border">
-      <div style="text-align:center"><h4>Revenue per Product</h4></div>
+      <h4 class="graph-heading">
+        Number of Sales per Product
+      </h4>
+      <hr class="graph-seperator">
+      <%= column_chart @metrics[:sales_per_product] %>
+    </div>
+
+    <div class="graph-border">
+      <h4 class="graph-heading">
+        Revenue per Product
+      </h4>
+      <hr class="graph-seperator">
       <%= column_chart @metrics[:revenue_per_product] %>
     </div>
   </div>
 
   
-  <h3 class="section-divider">Prices</h3>
+  <h3 class="section-divider">Prices &amp; Discounts</h3>
   <div class="graph-container">
     <div class="graph-border">
-      <div style="text-align:center"><h4>Proportion of Items Sold Per Price Point</h4></div>
-      <%= pie_chart @metrics[:prices] %>
+      <h4 class="graph-heading">
+        Proportion of Items Sold Per Price Point
+      </h4>
+      <hr class="graph-seperator">
+      <%= pie_chart @metrics[:sales_per_price] %>
     </div>
+
     <div class="graph-border">
-      <div style="text-align:center"><h4>Number of Items Sold Per Price Point</h4></div>
-      <%= column_chart @metrics[:prices] %>
+      <h4 class="graph-heading">
+        Number of Items Sold Per Price Point
+      </h4>
+      <hr class="graph-seperator">
+      <%= column_chart @metrics[:sales_per_price] %>
     </div>
+
     <div class="graph-border">
-      <div style="text-align:center"><h4>Revenue per Price Point</h4></div>
+      <h4 class="graph-heading">
+        Revenue per Price Point
+      </h4>
+      <hr class="graph-seperator">
       <%= column_chart @metrics[:revenue_per_price_point] %>
+    </div>
+
+    <div class="graph-border">
+      <h4 class="graph-heading">
+        Total Savings per Discount Code
+      </h4>
+      <hr class="graph-seperator">
+      <%= column_chart @metrics[:discount_savings] %>
+    </div>
+
+    <div class="graph-border">
+      <h4 class="graph-heading">
+        Number of Uses per Discount Code
+      </h4>
+      <hr class="graph-seperator">
+      <%= column_chart @metrics[:discount_quantity] %>
     </div>
   </div>
 
@@ -64,11 +124,18 @@
   <h3 class="section-divider">Countries</h3>
   <div class="graph-container">
     <div class="graph-border">
-      <div style="text-align:center"><h4>Proportion of Sales per Country</h4></div>
+      <h4 class="graph-heading">
+        Proportion of Sales per Country
+      </h4>
+      <hr class="graph-seperator">
       <%= pie_chart @metrics[:sales_per_country] %>
     </div>
+
     <div class="graph-border">
-      <div style="text-align:center"><h4>Revenue per Country</h4></div>
+      <h4 class="graph-heading">
+        Revenue per Country
+      </h4>
+      <hr class="graph-seperator">
       <%= column_chart @metrics[:revenue_per_country], stacked: true %>
     </div>
   </div>
@@ -77,8 +144,11 @@
   <h3 class="section-divider">Currencies</h3>
   <div class="graph-container">
     <div class="graph-border">
-      <div style="text-align:center"><h4>Currencies Used per Purchase</h4></div>
-      <%= pie_chart @metrics[:currencies] %>
+      <h4 class="graph-heading">
+        Currencies Used per Purchase
+      </h4>
+      <hr class="graph-seperator">
+      <%= pie_chart @metrics[:currencies_per_sale] %>
     </div>
   </div>
 
@@ -86,8 +156,11 @@
   <h3 class="section-divider">Customers</h3>
   <div class="graph-container">
     <div class="graph-border">
-      <div style="text-align:center"><h4>Purchases per Customer</h4></div>
-      <%= column_chart @metrics[:customer_sales], stacked: true %>
+      <h4 class="graph-heading">
+        Purchases per Customer
+      </h4>
+      <hr class="graph-seperator">
+      <%= column_chart @metrics[:sales_per_customer], stacked: true %>
     </div>
   </div>
 
@@ -95,23 +168,48 @@
   <h3 class="section-divider">Traffic Metrics</h3>
   <div class="graph-container">
     <div class="graph-border">
-      <div style="text-align:center"><h4>Referrals per Site</h4></div>
-      <%= column_chart @metrics[:referring_sites] %>
+      <h4 class="graph-heading">
+        Referrals per Site
+      </h4>
+      <hr class="graph-seperator">
+      <%= column_chart @metrics[:referral_sites] %>
     </div>
+
     <div class="graph-border">
-      <div style="text-align:center"><h4>Referrals per Site Pages</h4></div>
-      <%= column_chart @metrics[:referring_pages] %>
+      <h4 class="graph-heading">
+        Referrals per Site Pages
+      </h4>
+      <hr class="graph-seperator">
+      <%= column_chart @metrics[:referral_pages] %>
     </div>
+
     <div class="graph-border">
-      <div style="text-align:center"><h4>Revenue Per Referral Site</h4></div>
+      <h4 class="graph-heading">
+        Revenue Per Referral Site
+      </h4>
+      <hr class="graph-seperator">
       <%= column_chart @metrics[:revenue_per_referral_site] %>
     </div>
+
     <div class="graph-border">
-      <div style="text-align:center"><h4>Revenue Per Referral Site Page</h4></div>
+      <h4 class="graph-heading">
+        Revenue Per Referral Site Page
+      </h4>
+      <hr class="graph-seperator">
       <%= column_chart @metrics[:revenue_per_referral_page] %>
     </div>
   </div>
 
+
+  <div style="margin-top:30px; margin-left:auto; margin-right:auto; text-align:center; color:#999">
+    Generated <%= Time.now %>
+  </div>
+
+  <script type="text/javascript">
+    window.onload = function(){ 
+      //document.getElementById("loading").style.display = "none" 
+    }
+  </script>
   <!--
   <div id="fullscreen-graph" style="z-index:10; margin-left:auto; margin-right:auto;"></div>
 
