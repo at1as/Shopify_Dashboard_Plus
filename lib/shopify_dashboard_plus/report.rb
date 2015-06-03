@@ -69,9 +69,13 @@ module ShopifyDashboardPlus
     def to_h
       {
         :currencies_per_sale => currencies_per_sale,
+        :most_used_currency => currencies_per_sale.sort_by{ |k, v| v }.last,
         :sales_per_country => sales_per_country,
+        :most_sales_per_country => sales_per_country.sort_by{ |k, v| v }.last,
         :sales_per_price => sales_per_price_point,
+        :top_selling_price_point => sales_per_price_point.sort_by{ |k, v| v }.last,
         :sales_per_product => sales_per_product,
+        :top_selling_product => sales_per_product.sort_by{ |k, v| v }.last,
         :sales_per_customer => sales_per_customer,
         :number_of_sales => number_of_sales
       }
@@ -111,7 +115,9 @@ module ShopifyDashboardPlus
       {
         :revenue_per_country => revenue_per_country,
         :revenue_per_product => revenue_per_product,
+        :top_grossing_product => revenue_per_product.sort_by{ |k, v| v }.last,
         :revenue_per_price_point => revenue_per_price_point,
+        :top_grossing_price_point => revenue_per_price_point.sort_by{ |k, v| v}.last
       }
     end
   end
@@ -132,7 +138,9 @@ module ShopifyDashboardPlus
       end
       {
         :discount_savings => discount_value,
-        :discount_quantity => discount_used
+        :top_discount_savings => discount_value.sort_by{ |k, v| v }.last,
+        :discount_quantity => discount_used,
+        :most_used_discount_code => discount_used.sort_by{ |k, v| v }.last
       }
     end
 
@@ -159,8 +167,10 @@ module ShopifyDashboardPlus
         end
       end
       {
-        :referral_sites => (referring_sites.sort().to_h rescue {}),
-        :referral_pages => (referring_pages.sort().to_h rescue {})
+        :referral_sites => referring_sites.sort().to_h,
+        :top_referral_site => referring_sites.sort_by{ |k, v| v }.map{ |k, v| [k, v] unless k.downcase == 'none' }.compact.last,
+        :referral_pages => referring_pages.sort().to_h,
+        :top_referral_page => referring_pages.sort_by{ |k, v| v }.map{ |k, v| [k, v] unless k.downcase == 'none' }.compact.last
       }
     end
 
@@ -181,8 +191,10 @@ module ShopifyDashboardPlus
         end
       end
       {
-        :revenue_per_referral_site => (revenue_per_referral_site.sort().to_h rescue {}),
-        :revenue_per_referral_page => (revenue_per_referral_page.sort().to_h rescue {})
+        :revenue_per_referral_site => revenue_per_referral_site.sort().to_h,
+        :top_referral_site_revenue => revenue_per_referral_site.sort_by{ |k, v| v }.map{ |k, v| [k, v] unless k.downcase == 'none' }.compact.last,
+        :revenue_per_referral_page => revenue_per_referral_page.sort().to_h,
+        :top_referral_page_revenue => revenue_per_referral_page.sort_by{ |k, v| v }.map{ |k, v| [k, v] unless k.downcase == 'none' }.compact.last
       }
     end
 
