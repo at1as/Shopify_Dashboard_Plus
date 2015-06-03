@@ -181,8 +181,8 @@ module ShopifyDashboardPlus
         end
       end
       {
-        :revenue_per_referral_site => revenue_per_referral_site.sort().to_h,
-        :revenue_per_referral_page => revenue_per_referral_page.sort().to_h
+        :revenue_per_referral_site => (revenue_per_referral_site.sort().to_h rescue {}),
+        :revenue_per_referral_page => (revenue_per_referral_page.sort().to_h rescue {})
       }
     end
 
