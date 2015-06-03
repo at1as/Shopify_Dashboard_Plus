@@ -59,6 +59,13 @@ configure do
       result.round(2)
     end
   end
+
+  # For < Ruby 2.1 Compatability
+  class Array
+    def to_h
+      Hash[*self.flatten]
+    end
+  end
 end
 
 helpers ApplicationHelpers
