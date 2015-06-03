@@ -168,9 +168,9 @@ module ShopifyDashboardPlus
       end
       {
         :referral_sites => referring_sites.sort().to_h,
-        :top_referral_site => referring_sites.sort_by{ |k, v| v }.map{ |k, v| [k, v] unless k.downcase == 'none' }.compact.last,
+        :top_referral_site => max_hash_key_exclude_value(referring_sites, 'none'),
         :referral_pages => referring_pages.sort().to_h,
-        :top_referral_page => referring_pages.sort_by{ |k, v| v }.map{ |k, v| [k, v] unless k.downcase == 'none' }.compact.last
+        :top_referral_page => max_hash_key_exclude_value(referring_pages, 'none')
       }
     end
 
@@ -192,9 +192,9 @@ module ShopifyDashboardPlus
       end
       {
         :revenue_per_referral_site => revenue_per_referral_site.sort().to_h,
-        :top_referral_site_revenue => revenue_per_referral_site.sort_by{ |k, v| v }.map{ |k, v| [k, v] unless k.downcase == 'none' }.compact.last,
+        :top_referral_site_revenue => max_hash_key_exclude_value(revenue_per_referral_site, 'none'),
         :revenue_per_referral_page => revenue_per_referral_page.sort().to_h,
-        :top_referral_page_revenue => revenue_per_referral_page.sort_by{ |k, v| v }.map{ |k, v| [k, v] unless k.downcase == 'none' }.compact.last
+        :top_referral_page_revenue => max_hash_key_exclude_value(revenue_per_referral_page, 'none')
       }
     end
 

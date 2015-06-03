@@ -31,7 +31,7 @@
       <div class="graph-metrics">
         <div class="graph-metric">
           <h5 class="grey">Duration</h5>
-          <h3 class="money"><%= days(@metrics[:duration]) %></h3>
+          <h3 class="money"><%= pluralize @metrics[:duration], "day", "days" %></h3>
         </div>
         <div class="graph-metric">
           <h5 class="grey">Number of Sales</h5>
@@ -71,7 +71,7 @@
       <div class="graph-metrics">
         <div class="graph-metric">
           <h5 class="grey">Best Selling Product</h5>
-          <h4 class="stats"><%= @metrics[:top_selling_product][0] %> : <b><%= @metrics[:top_selling_product][1] %> Sales</b></h4>
+          <h4 class="stats"><%= @metrics[:top_selling_product][0] %> : <b><%= pluralize @metrics[:top_selling_product][1], "Sale", "Sales" %></b></h4>
         </div>
       </div>
       <% end %>
@@ -117,7 +117,7 @@
       <div class="graph-metrics">
         <div class="graph-metric">
           <h5 class="grey">Top Selling Price Point</h5>
-          <h4 class="stats"><b><%= @metrics[:top_selling_price_point][0] %></b> : <%= @metrics[:top_selling_price_point][1] %> Sales</h4>
+          <h4 class="stats"><b><%= @metrics[:top_selling_price_point][0] %></b> : <%= pluralize @metrics[:top_selling_price_point][1], "Sale", "Sales" %></h4>
         </div>
       </div>
       <% end %>
@@ -168,7 +168,7 @@
       <div class="graph-metrics">
         <div class="graph-metric">
           <h5 class="grey">Most Used Discount Code</h5>
-          <h4 class="stats"><%= @metrics[:most_used_discount_code][0] %> : <b><%= @metrics[:most_used_discount_code][1] %> Times</b></h4>
+          <h4 class="stats"><%= @metrics[:most_used_discount_code][0] %> : <b><%= pluralize @metrics[:most_used_discount_code][1], "Time", "Times" %></b></h4>
         </div>
       </div>
       <% end %>
@@ -189,7 +189,7 @@
       <div class="graph-metrics">
         <div class="graph-metric">
           <h5 class="grey">Most Sales Per Country</h5>
-          <h4 class="stats"><%= @metrics[:most_sales_per_country][0] %> : <b><%= @metrics[:most_sales_per_country][1] %> Times</b></h4>
+          <h4 class="stats"><%= @metrics[:most_sales_per_country][0] %> : <b><%= pluralize @metrics[:most_sales_per_country][1], "Time", "Times"%></b></h4>
         </div>
       </div>
       <% end %>
@@ -218,7 +218,7 @@
       <div class="graph-metrics">
         <div class="graph-metric">
           <h5 class="grey">Most Used Currency</h5>
-          <h4 class="stats"><%= @metrics[:most_used_currency][0] %> : <b><%= @metrics[:most_used_currency][1] %> Times</b></h4>
+          <h4 class="stats"><%= @metrics[:most_used_currency][0] %> : <b><%= pluralize @metrics[:most_used_currency][1], "Time", "Times" %></b></h4>
         </div>
       </div>
       <% end %>
@@ -251,7 +251,7 @@
       <div class="graph-metrics">
         <div class="graph-metric">
           <h5 class="grey">Top Referral Site</h5>
-          <h4 class="stats"><b><%= @metrics[:top_referral_site][0] %></b> : <%= @metrics[:top_referral_site][1] %> Referrals</h4>
+          <h4 class="stats"><b><%= @metrics[:top_referral_site][0] %></b> : <%= pluralize @metrics[:top_referral_site][1], "Referral", "Referrals" %></h4>
         </div>
       </div>
       <% end %>
@@ -268,7 +268,7 @@
       <div class="graph-metrics">
         <div class="graph-metric">
           <h5 class="grey">Top Referral Page</h5>
-          <h4 class="stats"><b><%= @metrics[:top_referral_page][0] %></b> : <%= @metrics[:top_referral_page][1] %> Referrals</h4>
+          <h4 class="stats"><b><%= @metrics[:top_referral_page][0] %></b> : <%= pluralize @metrics[:top_referral_page][1], "Referral", "Referrals" %></h4>
         </div>
       </div>
       <% end %>

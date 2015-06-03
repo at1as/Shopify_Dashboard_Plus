@@ -49,8 +49,8 @@ module ApplicationHelpers
     DateTime.now.strftime('%Y-%m-%d')
   end
 
-  def days(num)
-    num.to_i == 1 ? "#{num} Day" : "#{num} Days"
+  def pluralize(num, singular, plural)
+    num.to_i == 1 ? "#{num} #{singular.capitalize}" : "#{num} #{plural.capitalize}"
   end
 
   def strip_protocol(page)
@@ -69,6 +69,10 @@ module ApplicationHelpers
 
 
   ## Metrics Helpers
+
+  def max_hash_key_exclude_value(unsorted_hash, exclude_value)
+    unsorted_hash.sort_by{ |k, v| v }.map{ |k, v| [k, v] unless k.downcase == exclude_value }.compact.last
+  end
 
   def display_as_currency(value)
     ShopifyAPI::Shop.current.money_with_currency_format.gsub("{{amount}}", value.to_s)
