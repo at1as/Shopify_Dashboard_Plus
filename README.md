@@ -50,5 +50,5 @@ Choose the interval over which to get data and see it displayed as:
  
 ## Notes
 * Tested and developed with Ruby 2.0.0, 2.1.2, 2.2.0 on Mac OS 10.10
-* Tested against ![Learning Photography](https://learning.photography)
+* Tested against [Learning Photography](http://learning.photography)
 * Requires >= Ruby 2.0.0
