@@ -22,10 +22,12 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_runtime_dependency "sinatra", "~>1.4", ">= 1.4.5"
-  spec.add_runtime_dependency "tilt"
   spec.add_runtime_dependency "shopify_api", "~>4.0", ">= 4.0.3"
   spec.add_runtime_dependency "chartkick", "~>1.3", ">= 1.3.2"
   spec.add_runtime_dependency "vegas", "~> 0.1", ">= 0.1.11"
   spec.add_development_dependency "bundler", "~> 1.7"
   spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "minitest"
+  spec.add_development_dependency "tilt"
+  spec.add_development_dependency "rack-test", "~> 0.6", "~> 0.6.3"
 end
