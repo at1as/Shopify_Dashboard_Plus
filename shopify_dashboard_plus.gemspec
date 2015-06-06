@@ -30,4 +30,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "minitest"
   spec.add_development_dependency "tilt"
   spec.add_development_dependency "rack-test", "~> 0.6", "~> 0.6.3"
+  spec.add_development_dependency "capybara", "~> 2.4.4"
+  spec.add_development_dependency "capybara-webkit", "~> 1.5.1"
 end
+

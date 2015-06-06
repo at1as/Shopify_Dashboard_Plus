@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'sinatra'
-require 'tilt/erubis'
+require 'tilt/erb'
 require 'shopify_api'
 require 'uri'
 require 'chartkick'
