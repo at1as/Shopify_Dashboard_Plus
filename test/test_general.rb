@@ -21,11 +21,13 @@ class TestShopifyDashboardPlus < MiniTest::Test
   
   def setup
     Capybara.current_driver = :webkit
+    Capybara.default_wait_time = 5
     @version = ShopifyDashboardPlus::VERSION
   end
 
   def connection(api_key: nil, api_pwd: nil, shop_name: nil)
     visit '/'
+    sleep(1)
     fill_in 'api_key', :with => api_key if api_key
     fill_in 'api_pwd', :with => api_pwd if api_pwd
     fill_in 'shop_name', :with => shop_name if shop_name
