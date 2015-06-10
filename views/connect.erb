@@ -3,7 +3,7 @@
   <hr>
   <% if not connected? %>
     <% if $flash %><p id="flash" class="flash"><%= $flash %><% end %>
-    <form class="form-inline" id="connect" method="post" action="/connect">
+    <form class="form-inline" id="connect-box" method="post" action="/connect">
       <div class="form-group">
         <input id="api_key" name="api_key" class="form-control form-field-small" value="<%= h(params[:api_key]) %>" pattern="^[0-9a-z]*$" placeholder="API_KEY">
         <input id="api_pwd" name="api_pwd" class="form-control form-field-small" value="<%= h(params[:api_pwd]) %>" pattern="^[0-9a-z]*$" placeholder="API PASSWORD" type="password">
@@ -14,13 +14,13 @@
       </div>
     </form>
   <% else %>
-    <form class="form-inline" id="connect" method="post" action="/disconnect">
+    <form class="form-inline" id="disconnect-box" method="post" action="/disconnect">
       Currently connected as <b><%= shop_name %></b><br/>
       <div style="margin-top:10px">
         <a href="/">Back to Metrics</a>
       </div>
       <div class="form-group" style="display:block; margin-top:20px">
-        <input type="submit" class="btn btn-primary" style="width:200px" value="Disconnect">
+        <input id="disconnect" type="submit" class="btn btn-primary" style="width:200px" value="Disconnect">
       </div>
     </form>
   <% end %>
