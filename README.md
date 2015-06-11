@@ -38,17 +38,26 @@ Choose the interval over which to get data and see it displayed as:
 * Revenue Per Referral Site
 * Revenue Per Specific Referral Site Page
 
-## Usage
+## Installation
 * To install manually: 
   * `git clone https://github.com/at1as/Shopify_Dashboard_Plus.git`
 * To install using the gem: 
   * `gem install shopify_dashboard_plus`
-  * `shopify_dashboard_plus.rb`
+* Or, if you just want to try it out, head over to [Heroku](https://shopifydashboardplus.herokuapp.com/)
+  * Generally it's unwise to pass your API key & password through some hosted website. The code run on Heroku is taken automatically from this repo and you can check the source to see that the keys aren't being saved, but if you're in doubt, either create new credentials for this app and then revoke them after you're finished, or just install run locally with either option listed above instead.
+
+## Usage
 * Retrieve `API Key`, `Password` and `Shop Name` for your store from Shopify Admin
-* Run (key, password & name can be passed as environment variables, or later thorugh the UI):
-  * `SHP_KEY="API KEY" SHP_PWD="PASSWORD" SHP_NAME="SHOP NAME" ./lib/shopify_dashboard_plus.rb`
+* Run with environment variables
+  * `SHP_KEY="API KEY" SHP_PWD="PASSWORD" SHP_NAME="SHOP NAME" ./lib/shopify_dashboard_plus.rb` [manual installation]
+  * `SHP_KEY="API KEY" SHP_PWD="PASSWORD" SHP_NAME="SHOP NAME" shopify_dashboard_plus.rb` [Gem]
+* Run without environment variables (and pass these later thorugh the UI)
+  * `./lib/shopify_dashboard_plus.rb`
+  * `shopify_dashboard_plus.rb`
  
 ## Notes
-* Tested and developed with Ruby 2.0.0, 2.1.2, 2.2.0 on Mac OS 10.10
-* Tested against [Learning Photography](http://learning.photography)
+* Tested with:
+  * Ruby 2.0.0, 2.1.2, 2.2.0 on Mac OS 10.10 (Locally)
+  * Ruby 2.0.0, 2.1.3, 2.2.0 on Ubuntu Linux 12.04 (TravisCI)
 * Requires >= Ruby 2.0.0
+* Tested against [Learning Photography](http://learning.photography)
