@@ -1,7 +1,7 @@
 <div class="well" style="text-align:center; max-width:600px; margin-left:auto; margin-right:auto; margin-top:30px">
   <h2 style="margin-top:10px; margin-bottom:20px">Connect to your Shopify Admin</h2>
   <hr>
-  <% if not connected? %>
+  <% if not connected? or not authenticated? %>
     <% if $flash %><p id="flash" class="flash"><%= $flash %><% end %>
     <form class="form-inline" id="connect-box" method="post" action="/connect">
       <div class="form-group">

@@ -14,6 +14,12 @@ module ApplicationHelpers
     "discount_codes"
   ]
 
+  ## Authentication Helpers
+  def authenticated?
+    session[:logged_in]
+  end
+
+
   ## Connection & Setup Helpers
   
   def set_connection(key, pwd, name)
@@ -28,10 +34,12 @@ module ApplicationHelpers
 
   def close_connection
     $connected = false
+    session[:logged_in] = nil
   end
 
   def open_connection
     $connected = true
+    session[:logged_in] = true
   end
 
   def connected?

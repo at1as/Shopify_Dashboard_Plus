@@ -10,6 +10,8 @@ require_relative 'shopify_dashboard_plus/report'
 require_relative 'shopify_dashboard_plus/version'
 
 configure do
+  enable :sessions
+  
   set :public_dir, "#{__dir__}/../public"
   set :views, "#{__dir__}/../views"
 
@@ -35,6 +37,7 @@ configure do
       shop = ShopifyAPI::Shop.current
       $shop_name = SHOP_NAME
       $connected = true
+      session[:logged_in] = true
     rescue Exception => e
       puts "\nFailed to connect using provided credentials...(Exception: #{e})\n #{HELP}"
       exit
@@ -78,7 +81,7 @@ end
 
 
 get '/' do
-  redirect '/connect' unless connected?
+  redirect '/connect' unless connected? and authenticated?
 
   # If no start date is set, default to match end date
   # If no date parameters are set, default both to today
