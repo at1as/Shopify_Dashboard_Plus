@@ -1,4 +1,4 @@
-# Shopify_Dashboard_Plus [![Gem Version](https://badge.fury.io/rb/shopify_dashboard_plus.svg)](http://badge.fury.io/rb/shopify_dashboard_plus) [![Build Status](https://travis-ci.org/at1as/Shopify_Dashboard_Plus.svg?branch=master)](https://travis-ci.org/at1as/Shopify_Dashboard_Plus)
+# Shopify_Dashboard_Plus [![Gem Version](https://badge.fury.io/rb/shopify_dashboard_plus.svg)](http://badge.fury.io/rb/shopify_dashboard_plus) [![Build Status](https://travis-ci.org/at1as/Shopify_Dashboard_Plus.svg?branch=master)](https://travis-ci.org/at1as/Shopify_Dashboard_Plus) <a href="https://codeclimate.com/github/at1as/Shopify_Dashboard_Plus"><img src="https://codeclimate.com/github/at1as/Shopify_Dashboard_Plus/badges/gpa.svg" /></a>
 Pretty Dashboard for Shopify Admin with lots of graphs.
 
 ## Screenshots
