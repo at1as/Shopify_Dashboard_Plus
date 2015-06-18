@@ -28,7 +28,8 @@ module ApplicationHelpers
     shop = ShopifyAPI::Shop.current
     $shop_name = name
     open_connection
-  rescue
+  rescue => e
+    puts "Exception", e
     close_connection
   end
 

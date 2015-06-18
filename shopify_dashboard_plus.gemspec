@@ -27,10 +27,13 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "vegas", "~> 0.1", ">= 0.1.11"
   spec.add_development_dependency "bundler", "~> 1.7"
   spec.add_development_dependency "rake", "~> 10.0"
-  spec.add_development_dependency "minitest"
+  spec.add_development_dependency "minitest", "~> 5.7", ">= 5.7.0"
   spec.add_development_dependency "tilt"
   spec.add_development_dependency "rack-test", "~> 0.6"
   spec.add_development_dependency "capybara", "~> 2.4.4"
   spec.add_development_dependency "capybara-webkit", "~> 1.5.1"
+  spec.add_development_dependency "vcr", "~>2.9", ">=2.9.3"
+  spec.add_development_dependency "webmock", "~>1.21", ">=1.21.0"
+  spec.add_development_dependency "byebug", "~>5.0", ">=5.0.0"
 end
 
