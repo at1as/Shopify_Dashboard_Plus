@@ -4,6 +4,7 @@ require 'minitest/autorun'
 require 'rack/test'
 require 'tilt/erb'
 require 'vcr'
+require 'webmock'
 require './lib/shopify_dashboard_plus.rb'
 require './lib/shopify_dashboard_plus/version'
 require './lib/shopify_dashboard_plus/helpers'
@@ -20,6 +21,9 @@ class TestShopifyDashboardPlus < MiniTest::Test
   # VCR from test_mockdata test suite should not intercept these HTTP requests
   VCR.turned_off do
     
+    # Allow real HTTP Requests
+    WebMock.allow_net_connect!
+
     def app
       Capybara.app = Sinatra::Application
     end

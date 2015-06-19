@@ -6,6 +6,7 @@ require 'capybara'
 require 'capybara/webkit'
 require 'tilt/erb'
 require 'vcr'
+require 'webmock'
 require './lib/shopify_dashboard_plus.rb'
 require './lib/shopify_dashboard_plus/version'
 require './lib/shopify_dashboard_plus/helpers'
@@ -22,6 +23,13 @@ class TestShopifyDashboardPlus < MiniTest::Test
 
   # VCR from test_mockdata test suite should not intercept these HTTP requests
   VCR.turned_off do
+
+    # Allow real HTTP Requests
+    WebMock.allow_net_connect!
+    
+    def app
+      app = Sinatra::Application
+    end
 
     def setup
       Capybara.current_driver = :webkit
@@ -48,11 +56,11 @@ class TestShopifyDashboardPlus < MiniTest::Test
     def test_invalid_credentials_flash_message
       page.driver.block_unknown_urls # JS Graphing Library not needed
       page.visit '/connect'
-      invalid_connection(api_key: "bad_api_key!!!1")
+      invalid_connection(api_key: "bad_api_key")
       page.visit '/connect'
-      invalid_connection(api_pwd: "bad_api_pwd!!!1")
+      invalid_connection(api_pwd: "bad_api_pwd")
       page.visit '/connect'
-      invalid_connection(shop_name: "bad_shop_name!!1")
+      invalid_connection(shop_name: "bad_shop_name")
       page.visit '/connect'
       invalid_connection
     end
