@@ -22,6 +22,12 @@ VCR.configure do |config|
 
   # Allow other test suites to send real HTTP requests
   config.allow_http_connections_when_no_cassette = true
+
+  # 
+  config.before_record { |cassette| cassette.response.body.force_encoding('UTF-8') }
+  config.filter_sensitive_data('<API_KEY>') { ENV['API_KEY'] }
+  config.filter_sensitive_data('<API_PWD>') { ENV['API_PWD'] }
+  config.filter_sensitive_data('<SHOP_NAME>') { ENV['SHOP_NAME'] }
 end
 
 
@@ -105,8 +111,6 @@ class TestShopifyDashboardPlus < MiniTest::Test
     # Will reuse cassette for tests run the same day (in which the URL paramater created_at_min=YYYY-MM-DD will be identical)
     # Will append a new entry on a new day
     VCR.use_cassette(:orders_no_paramaters, :record => :new_episodes, :match_requests_on => [:path]) do
-      
-      #byebug
 
       r = get url
       assert_equal last_request.fullpath, '/'
