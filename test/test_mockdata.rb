@@ -18,16 +18,23 @@ VCR.configure do |config|
   # Shopify Gem uses Net::HTTP
   # Requests can be captured using webmock
   config.hook_into :webmock
-  config.ignore_hosts '127.0.0.1', 'localhost', '0.0.0.0'
+  config.ignore_hosts '127.0.0.1', 'localhost', '0.0.0.0', 'example.com'
+  #config.debug_logger = File.open('request_log.log', 'w')
 
   # Allow other test suites to send real HTTP requests
   config.allow_http_connections_when_no_cassette = true
 
-  # 
+  # Show response payload in body as plaintext and hide API credentials
   config.before_record { |cassette| cassette.response.body.force_encoding('UTF-8') }
-  config.filter_sensitive_data('<API_KEY>') { ENV['API_KEY'] }
-  config.filter_sensitive_data('<API_PWD>') { ENV['API_PWD'] }
-  config.filter_sensitive_data('<SHOP_NAME>') { ENV['SHOP_NAME'] }
+  config.filter_sensitive_data('<API_KEY>') { ENV['API_KEY'] || "testkey" }
+  config.filter_sensitive_data('<API_PWD>') { ENV['API_PWD'] || "testpwd" }
+  config.filter_sensitive_data('<SHOP_NAME>') { ENV['SHOP_NAME'] || "testshop"}
+
+  # Match certain requests by date in the payload
+  config.register_request_matcher :port do |request_1, request_2|
+  
+    @today == VCR::HTTPInteraction
+  end
 end
 
 
@@ -37,11 +44,22 @@ class TestShopifyDashboardPlus < MiniTest::Test
   attr_accessor :authenticated
 
   def app
-    Capybara.app = Sinatra::Application
+    Sinatra::Application
+  end
+
+  def setup
+    @today = DateTime.now.strftime('%Y-%m-%d')
+    @hardcoded_day = "2015-06-26"
   end
 
 
+  #######################
   ## Common Methods
+  #######################
+  def env_set?
+    return true if (ENV['API_KEY'] and ENV['API_PWD'] and ENV['SHOP_NAME'])
+    false
+  end
 
   def authenticate
     unless authenticated
@@ -50,7 +68,7 @@ class TestShopifyDashboardPlus < MiniTest::Test
         # Use environment variables if specified, otherwise use fake information
         # Shopify URL will appear as <api_key>:<api_pwd>@<storename>.myshopify.com/<path>
         # VCR casettes should match on the URI path, not the host information
-        if ENV['API_KEY'] and ENV['API_PWD'] and ENV['SHOP_NAME']
+        if env_set?
           payload = "api_key=#{ENV['API_KEY']}&api_pwd=#{ENV['API_PWD']}&shop_name=#{ENV['SHOP_NAME']}"
         else
           payload = "api_key=testkey&api_pwd=testpwd&shop_name=testshop"
@@ -92,7 +110,9 @@ class TestShopifyDashboardPlus < MiniTest::Test
   end
 
 
+  #######################
   ## Test Cases
+  #######################
 
   def test_unauthorized_redirect
     VCR.turned_off do
@@ -102,68 +122,95 @@ class TestShopifyDashboardPlus < MiniTest::Test
     end
   end
 
+  # Validate results with no start date or end date parameter set
+  # Results should default to today's results
   def test_no_parameters
-    today = DateTime.now.strftime('%Y-%m-%d')
-
     authenticate
     url = build_url
     
+    if env_set?
     # Will reuse cassette for tests run the same day (in which the URL paramater created_at_min=YYYY-MM-DD will be identical)
     # Will append a new entry on a new day
-    VCR.use_cassette(:orders_no_paramaters, :record => :new_episodes, :match_requests_on => [:path]) do
+      VCR.use_cassette(:orders_no_paramaters, :erb => { :today => @today }, :record => :once, :match_requests_on => [:method]) do
+        r = get url
+        assert_equal last_request.fullpath, '/'
 
-      r = get url
-      assert_equal last_request.fullpath, '/'
-
-      # Ensure default start and end date are today's date 
-      assert_equal 2, r.body.scan(/placeholder=\"#{today}\"/).length
-      validate_body(r.body)
+        # Ensure default start and end date are today's date 
+        assert_equal 2, r.body.scan(/placeholder=\"#{@today}\"/).length
+        validate_body(r.body)
+      end
     end
   end
 
-  def test_only_startdate_parameter
+
+  # Validate results with only start date parameter set
+  # End date should default to today
+  def test_only_start_date_parameter
     authenticate
     url = build_url(:from => "2010-01-01")
 
-    VCR.use_cassette(:orders_from_2010_01_01, :match_requests_on => [:path]) do
+    VCR.use_cassette(:orders_from_2010_01_01, :record => :once, :match_requests_on => [:path]) do
       r = get url
       assert_equal '/?from=2010-01-01', last_request.fullpath
       validate_body(r.body)
     end
   end
 
-  def test_only_enddate_parameter
-    today = DateTime.now.strftime('%Y-%m-%d')
 
+  # Validate results with only the end date parameter set
+  def test_only_end_date_parameter
     authenticate
-    url = build_url(:to => today)
+    url = build_url(:to => @hardcoded_day)
 
-    VCR.use_cassette("orders_to_#{today}", :match_requests_on => [:path]) do
+    VCR.use_cassette("orders_to_#{@hardcoded_day}", :match_requests_on => [:path]) do
       r = get url
-      assert_equal "/?to=#{today}", last_request.fullpath
+      assert_equal "/?to=#{@hardcoded_day}", last_request.fullpath
       validate_body(r.body)
     end
   end
 
+
+  # Validate results over a valid start date and end date
   def test_valid_date_range
     authenticate
     url = build_url(:from => "2010-01-01", :to => "2015-01-01")
 
     VCR.use_cassette(:orders_from_2010_01_01_to_2015_01_01, :match_requests_on => [:path]) do
       r = get url
-      
-      #order_data = r.body.scan(/Chartkick.ColumnChart[(][\\][\"]chart-1[\\][\"], {.*}/)
-      #puts "O #{order_data}"
+ 
       assert_equal '/?from=2010-01-01&to=2015-01-01', last_request.fullpath
       validate_body(r.body)
     end
   end
 
+
   # Validate that more than 250 results can be returned (the limit)
-  #def test_pagination
-  #  authenticate
-  #
-  #end
+  def test_pagination
+    authenticate
+    url = build_url(:from => "2010-01-01", :to => "2015-01-01")
+    
+    VCR.use_cassette(:multiple_pages_orders, :match_requests_on => [:path]) do
+      r = get url
+
+      sales_regexp = r.body.scan(/(Number of Sales[<][\/]h5>)\n(.*[<]h3[ ]class=["]money["][>][0-9]*)/).first[1]
+      number_of_sales = sales_regexp.scan(/\d+$/).first
+
+      assert number_of_sales.to_i > 250, "number of sales (#{number_of_sales}) does not encompass at least two pages (> 250 entries)"
+    end
+  end
+
+
+  # Validate an empty order is rendered correctly
+  def test_empty_order_set
+    authenticate
+    url = build_url
+
+    VCR.use_cassette(:orders_none, :match_requests_on => [:path]) do
+      r = get url
+
+      validate_body(r.body)
+    end
+  end
 
 
   #######################

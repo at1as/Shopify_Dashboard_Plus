@@ -52,6 +52,7 @@ module Anonymizer
           billing_address_replacement[old_address]['address1'] = Faker::Address.street_address
           billing_address_replacement[old_address]['address2'] = Faker::Address.secondary_address
           billing_address_replacement[old_address]['city'] = Faker::Address.city
+          billing_address_replacement[old_address]['country'] = 'Canada'
           billing_address_replacement[old_address]['company'] = Faker::Company.name
           billing_address_replacement[old_address]['first_name'] = Faker::Name.first_name
           billing_address_replacement[old_address]['last_name'] = Faker::Name.last_name
@@ -80,6 +81,7 @@ module Anonymizer
 
           if line_items_replacement[old_item].empty?
             line_items_replacement[old_item]['product_id'] = Faker::Number.number(8)
+            line_items_replacement[old_item]['price'] = Faker::Commerce.price.to_s
             line_items_replacement[old_item]['title'] = Faker::Commerce.product_name
             line_items_replacement[old_item]['variant_id'] = Faker::Number.number(10)
             line_items_replacement[old_item]['vendor'] = Faker::Commerce.department
