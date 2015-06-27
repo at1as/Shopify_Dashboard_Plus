@@ -83,17 +83,17 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (~> 1.7)
-  byebug (~> 5.0, >= 5.0.0)
+  byebug (~> 5.0)
   capybara (~> 2.4.4)
   capybara-webkit (~> 1.5.1)
   faker (~> 1.4)
-  minitest (~> 5.7, >= 5.7.0)
+  minitest (~> 5.7)
   rack-test (~> 0.6)
   rake (~> 10.0)
   shopify_dashboard_plus!
   tilt
-  vcr (~> 2.9, >= 2.9.3)
-  webmock (~> 1.21, >= 1.21.0)
+  vcr (~> 2.9)
+  webmock (~> 1.21)
 
 BUNDLED WITH
    1.10.5
