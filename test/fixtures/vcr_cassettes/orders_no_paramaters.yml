@@ -1,0 +1,81 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://<API_KEY>:<API_PWD>@<SHOP_NAME>.myshopify.com/admin/orders.json?created_at_max=<%= today %>%2023:59:59&created_at_min==<%= today %>%200:00&fields%5B%5D=billing_address&fields%5B%5D=created_at&fields%5B%5D=currency&fields%5B%5D=customer&fields%5B%5D=discount_codes&fields%5B%5D=line_items&fields%5B%5D=referring_site&fields%5B%5D=total_price&limit=250&page=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - ShopifyAPI/4.0.4 ActiveResource/4.0.0 Ruby/2.1.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Sat, 27 Jun 2015 03:02:01 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      X-Sorting-Hat-Podid:
+      - '3'
+      X-Sorting-Hat-Shopid:
+      - '4500785'
+      X-Sorting-Hat-Podid-Cached:
+      - '1'
+      X-Sorting-Hat-Shopid-Cached:
+      - '1'
+      Vary:
+      - Accept-Encoding
+      Status:
+      - 200 OK
+      X-Xss-Protection:
+      - 1; mode=block; report=/xss-report/0a457a06-1849-408f-bc0f-57f4edc59f89?source%5Baction%5D=index&source%5Bcontroller%5D=admin%2Forders&source%5Bsection%5D=admin
+      X-Content-Type-Options:
+      - nosniff
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-Shopid:
+      - '4500785'
+      X-Shardid:
+      - '3'
+      X-Shopify-Shop-Api-Call-Limit:
+      - 1/40
+      Http-X-Shopify-Shop-Api-Call-Limit:
+      - 1/40
+      X-Stats-Userid:
+      - '0'
+      X-Stats-Apiclientid:
+      - '860030'
+      X-Stats-Apipermissionid:
+      - '11578246'
+      Set-Cookie:
+      - request_method=GET; path=/
+      X-Request-Id:
+      - 0a457a06-1849-408f-bc0f-57f4edc59f89
+      P3p:
+      - CP="NOI DSP COR NID ADMa OPTa OUR NOR"
+      X-Dc:
+      - ash
+    body:
+      encoding: UTF-8
+      string: '{"orders":[{"created_at":"<%= today %>T20:06:43-04:00","currency":"CAD","referring_site":"http://thielhodkiewicz.ca/caandra","total_price":"281.37","discount_codes":[],"line_items":[{"product_id":"08314615","price":76.97,"title":"Ergonomic
+        Wooden Gloves","variant_id":"4564472289","vendor":"Jewelery","name":"Sleek
+        Concrete Car"}],"billing_address":{"address1":"9875 Bogan Grove","address2":"Suite
+        328","city":"Modestoport","country":"Canada","company":"Leannon-Veum","first_name":"Conner","last_name":"Grimes","latitude":"18.212338163213815","longitude":"70.88552439133932","phone":"300-733-7915
+        x4220","zip":"A5Q1V5","name":"ConnerGrimes"},"customer":{"id":"41185198","email":"frances@lubowitz.com","first_name":"Ephraim","last_name":"Baumbach"}}]}'
+    http_version: 
+  recorded_at: Sat, 27 Jun 2015 03:03:11 GMT
+recorded_with: VCR 2.9.3
