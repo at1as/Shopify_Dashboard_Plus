@@ -35,6 +35,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "vcr", "~>2.9", ">=2.9.3"
   spec.add_development_dependency "webmock", "~>1.21", ">= 1.21.0"
   spec.add_development_dependency "byebug", "~>5.0", ">= 5.0.0"
-  spec.add_development_dependency "faker", "~>1.4", ">= 1.4.3"
+  spec.add_development_dependency "faker", "~>1.4"
 end
 
