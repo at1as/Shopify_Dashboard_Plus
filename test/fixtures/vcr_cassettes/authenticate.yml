@@ -1,0 +1,88 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://<API_KEY>:<API_PWD>@<SHOP_NAME>.myshopify.com/admin/shop.json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - ShopifyAPI/4.0.4 ActiveResource/4.0.0 Ruby/2.1.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Sat, 27 Jun 2015 03:01:57 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      X-Sorting-Hat-Podid:
+      - '3'
+      X-Sorting-Hat-Shopid:
+      - '4500785'
+      X-Sorting-Hat-Podid-Cached:
+      - '0'
+      X-Sorting-Hat-Shopid-Cached:
+      - '0'
+      Vary:
+      - Accept-Encoding
+      Status:
+      - 200 OK
+      X-Xss-Protection:
+      - 1; mode=block; report=/xss-report/9d194876-c7d2-4aad-bde8-d6d849c36689?source%5Baction%5D=show&source%5Bcontroller%5D=admin%2Fshops&source%5Bsection%5D=admin
+      X-Content-Type-Options:
+      - nosniff
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-Shopid:
+      - '4500785'
+      X-Shardid:
+      - '3'
+      X-Shopify-Shop-Api-Call-Limit:
+      - 1/40
+      Http-X-Shopify-Shop-Api-Call-Limit:
+      - 1/40
+      X-Stats-Userid:
+      - '0'
+      X-Stats-Apiclientid:
+      - '860030'
+      X-Stats-Apipermissionid:
+      - '11578246'
+      Set-Cookie:
+      - request_method=GET; path=/
+      X-Request-Id:
+      - 9d194876-c7d2-4aad-bde8-d6d849c36689
+      P3p:
+      - CP="NOI DSP COR NID ADMa OPTa OUR NOR"
+      X-Dc:
+      - ash
+    body:
+      encoding: UTF-8
+      string: '{"shop":{"address1":"701 Stark Flats","city":"South Malikaport","country":"CA","created_at":"2014-04-19T17:30:49-04:00","customer_email":"hayley@oharacremin.com","domain":"http://monahan.ca/dandre.cruickshank","email":"elmira@champlinmayert.name","id":"58382412","latitude":"10.387792133033884","longitude":"-5.899199603551523","name":"Kuhic,
+        Marquardt and Little","phone":"831.392.9441","primary_locale":"en","primary_location_id":null,"province":"Ontario","source":null,"zip":"L2K
+        8I6","country_code":"CA","country_name":"Canada","currency":"CAD","timezone":"(GMT-05:00)
+        Eastern Time (US & Canada)","iana_timezone":"America/New_York","shop_owner":"Tania
+        Schoen","money_format":"${{amount}}","money_with_currency_format":"${{amount}}
+        CAD","province_code":"ON","taxes_included":false,"tax_shipping":null,"county_taxes":true,"plan_display_name":"basic","plan_name":"basic","myshopify_domain":"<SHOP_NAME>.myshopify.com","google_apps_domain":null,"google_apps_login_enabled":null,"money_in_emails_format":"${{amount}}","money_with_currency_in_emails_format":"${{amount}}
+        CAD","eligible_for_payments":true,"requires_extra_payments_agreement":false,"password_enabled":false,"has_storefront":true,"announcement":{"body":"Respecting
+        your privacy is important to us. Please take a moment to review the updated
+        <a href=\"https://www.shopify.com/legal/privacy\">Privacy Policy</a>.","created_at":"2015-06-09T15:12:50-04:00","expire_at":"2015-07-10T00:00:00-04:00","id":41506,"subject":"We’ve
+        updated our Privacy Policy","rendered_body":"Respecting your privacy is important
+        to us. Please take a moment to review the updated <a href=\"https://www.shopify.com/legal/privacy\">Privacy
+        Policy</a>."}}}'
+    http_version: 
+  recorded_at: Sat, 27 Jun 2015 03:03:07 GMT
+recorded_with: VCR 2.9.3

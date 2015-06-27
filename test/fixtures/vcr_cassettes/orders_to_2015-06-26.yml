@@ -1,0 +1,81 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://<API_KEY>:<API_PWD>@<SHOP_NAME>.myshopify.com/admin/orders.json?created_at_max=2015-06-26%2023:59:59&created_at_min=2015-06-26%200:00&fields%5B%5D=billing_address&fields%5B%5D=created_at&fields%5B%5D=currency&fields%5B%5D=customer&fields%5B%5D=discount_codes&fields%5B%5D=line_items&fields%5B%5D=referring_site&fields%5B%5D=total_price&limit=250&page=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - ShopifyAPI/4.0.4 ActiveResource/4.0.0 Ruby/2.1.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Sat, 27 Jun 2015 03:02:01 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      X-Sorting-Hat-Podid:
+      - '3'
+      X-Sorting-Hat-Shopid:
+      - '4500785'
+      X-Sorting-Hat-Podid-Cached:
+      - '1'
+      X-Sorting-Hat-Shopid-Cached:
+      - '1'
+      Vary:
+      - Accept-Encoding
+      Status:
+      - 200 OK
+      X-Xss-Protection:
+      - 1; mode=block; report=/xss-report/db2dd2d8-eb26-4650-8bc4-588a41b866ef?source%5Baction%5D=index&source%5Bcontroller%5D=admin%2Forders&source%5Bsection%5D=admin
+      X-Content-Type-Options:
+      - nosniff
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-Shopid:
+      - '4500785'
+      X-Shardid:
+      - '3'
+      X-Shopify-Shop-Api-Call-Limit:
+      - 1/40
+      Http-X-Shopify-Shop-Api-Call-Limit:
+      - 1/40
+      X-Stats-Userid:
+      - '0'
+      X-Stats-Apiclientid:
+      - '860030'
+      X-Stats-Apipermissionid:
+      - '11578246'
+      Set-Cookie:
+      - request_method=GET; path=/
+      X-Request-Id:
+      - db2dd2d8-eb26-4650-8bc4-588a41b866ef
+      P3p:
+      - CP="NOI DSP COR NID ADMa OPTa OUR NOR"
+      X-Dc:
+      - ash
+    body:
+      encoding: UTF-8
+      string: '{"orders":[{"created_at":"2015-06-26T20:06:43-04:00","currency":"CAD","referring_site":"http://bartell.com/alvis","total_price":"281.37","discount_codes":[],"line_items":[{"product_id":"63864731","price":"95.11","title":"Gorgeous
+        Rubber Pants","variant_id":"7654546673","vendor":"Automotive","name":"Incredible
+        Cotton Gloves"}],"billing_address":{"address1":"72886 Emmanuelle Manors","address2":"Suite
+        813","city":"Connhaven","country":"Canada","company":"Collins LLC","first_name":"Chelsea","last_name":"Thiel","latitude":"69.41862661206804","longitude":"82.43290958920517","phone":"1-244-410-9707
+        x716","zip":"M1I9E7","name":"ChelseaThiel"},"customer":{"id":"29327241","email":"emmalee_goodwin@cronagottlieb.com","first_name":"Sarina","last_name":"Abshire"}}]}'
+    http_version: 
+  recorded_at: Sat, 27 Jun 2015 03:03:11 GMT
+recorded_with: VCR 2.9.3

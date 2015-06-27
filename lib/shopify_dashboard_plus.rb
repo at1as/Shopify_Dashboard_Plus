@@ -36,6 +36,7 @@ configure do
       ShopifyAPI::Base.site = shop_url
       shop = ShopifyAPI::Shop.current
       $shop_name = SHOP_NAME
+      $currency = shop.money_with_currency_format
       $connected = true
       session[:logged_in] = true
     rescue Exception => e

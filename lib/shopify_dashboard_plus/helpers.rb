@@ -27,8 +27,10 @@ module ApplicationHelpers
     ShopifyAPI::Base.site = shop_url
     shop = ShopifyAPI::Shop.current
     $shop_name = name
+    $currency = shop.money_with_currency_format
     open_connection
-  rescue
+  rescue => e
+    puts "Exception", e
     close_connection
   end
 
@@ -83,7 +85,7 @@ module ApplicationHelpers
   end
 
   def display_as_currency(value)
-    ShopifyAPI::Shop.current.money_with_currency_format.gsub("{{amount}}", value.to_s)
+    $currency.gsub("{{amount}}", value.to_s)
   rescue
     'N/A'
   end
@@ -173,7 +175,7 @@ module ApplicationHelpers
     # Get first 250 results matching query
     params = order_parameters_paginate(start_date, end_date, 1)
     revenue_metrics = [ShopifyAPI::Order.find(:all, :params => params)]
-    
+
     # If the amount of results equal to the limit (250) were returned, pass the query on to the next page (orders 251 to 500)
     while revenue_metrics.last.length == 250
       params = order_parameters_paginate(start_date, end_date, revenue_metrics.length + 1)
