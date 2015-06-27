@@ -27,19 +27,22 @@ class TestShopifyDashboardPlus < MiniTest::Test
     # Allow real HTTP Requests
     WebMock.allow_net_connect!
     
-    def app
-      app = Sinatra::Application
-    end
+    # Necessary to use capybara with sinatra applicaiton
+    Capybara.app = Sinatra::Application
+
 
     def setup
-      Capybara.current_driver = :webkit
-      Capybara.javascript_driver = :webkit
-      Capybara.page.driver.browser.ignore_ssl_errors
-      Capybara.default_wait_time = 10
-      Capybara.always_include_port = true
-      Capybara.server_port = 31337
-      Capybara.app_host = "http://127.0.0.1"
-      Capybara.app = Sinatra::Application
+      Capybara.configure do |config|
+        config.run_server = false
+        config.current_driver = :webkit
+        config.default_driver = :webkit
+        config.javascript_driver = :webkit
+        config.page.driver.browser.ignore_ssl_errors
+        config.default_wait_time = 10
+        config.always_include_port = true
+        config.server_port = 31337
+        config.app_host = "http://127.0.0.1"
+      end
     end
 
     def invalid_connection(api_key: nil, api_pwd: nil, shop_name: nil)
@@ -54,7 +57,6 @@ class TestShopifyDashboardPlus < MiniTest::Test
     end
 
     def test_invalid_credentials_flash_message
-      page.driver.block_unknown_urls # JS Graphing Library not needed
       page.visit '/connect'
       invalid_connection(api_key: "bad_api_key")
       page.visit '/connect'
