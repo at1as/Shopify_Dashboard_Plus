@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Anonymizer
 
   # Strip discount information and replace with fake data

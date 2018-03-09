@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'YAML'
 require 'json'
 require 'faker'

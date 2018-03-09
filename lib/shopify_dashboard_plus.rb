@@ -6,8 +6,12 @@ require 'tilt/erb'
 require 'shopify_api'
 require 'uri'
 require 'chartkick'
+require_relative 'shopify_dashboard_plus/currency'
 require_relative 'shopify_dashboard_plus/helpers'
-require_relative 'shopify_dashboard_plus/report'
+require_relative 'shopify_dashboard_plus/discount_report'
+require_relative 'shopify_dashboard_plus/revenue_report'
+require_relative 'shopify_dashboard_plus/sales_report'
+require_relative 'shopify_dashboard_plus/traffic_report'
 require_relative 'shopify_dashboard_plus/version'
 
 configure do
@@ -36,43 +40,15 @@ configure do
     SHOP_NAME = ENV["SHP_NAME"]
     
     begin
-      shop_url = "https://#{API_KEY}:#{PASSWORD}@#{SHOP_NAME}.myshopify.com/admin"
-      ShopifyAPI::Base.site = shop_url
+      ShopifyAPI::Base.site = "https://#{API_KEY}:#{PASSWORD}@#{SHOP_NAME}.myshopify.com/admin"
       shop = ShopifyAPI::Shop.current
+      
       $shop_name = SHOP_NAME
-      $currency = shop.money_with_currency_format
+      $currency  = shop.money_with_currency_format
       $connected = true
-      session[:logged_in] = true
     rescue Exception => e
-      puts "\nFailed to connect using provided credentials...(Exception: #{e})\n #{HELP}"
+      puts "\nFailed to connect using provided credentials for API KEY #{API_KEY} : #{e})\n #{HELP}"
       exit
-    end
-  end
-
-  
-  # When adding 44.95.round(2) + 940.6.round(2) the precision of the result will be 985.5500000000001
-  # In a sample of 100_000_000_000 entries, the precision will round up cents
-  # Since all numbers are currency, the plus method will trim to two decimals
-  # Numbers returned as: 44, 44.5, or 44.51
-  class Fixnum
-    def plus(amount)
-      result = self + (amount.to_f rescue 0)
-      result.round(2)
-    end
-  end
-
-  # For Ruby 2.4.0 onwards
-  class Integer
-    def plus(amount)
-      result = self + (amount.to_f rescue 0)
-      result.round(2)
-    end
-  end
-
-  class Float
-    def plus(amount)
-      result = self + (amount.to_f rescue 0)
-      result.round(2)
     end
   end
 end
@@ -81,7 +57,7 @@ helpers ApplicationHelpers
 
 
 before do
-  $flash   = nil
+  $flash   = ''
   $metrics = false
 end
 
@@ -123,9 +99,9 @@ post '/connect' do
 end
 
 post '/disconnect' do
-  API_KEY  = ""
-  API_PWD  = ""
-  SHP_NAME = ""
+  API_KEY  = ''
+  API_PWD  = ''
+  SHP_NAME = ''
   close_connection
 
   erb :connect
