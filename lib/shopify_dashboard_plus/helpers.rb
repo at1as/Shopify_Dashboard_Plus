@@ -21,6 +21,7 @@ module ApplicationHelpers
   ].freeze
 
   ## Authentication Helpers
+
   def authenticated?
     session[:logged_in]
   end
@@ -34,15 +35,17 @@ module ApplicationHelpers
 
     $shop_name = name
     $currency  = shop.money_with_currency_format
+
+    session[:logged_in] = true
     open_connection
-  rescue => e
+  rescue SocketError, ActiveResource::ResourceNotFound => e
     puts "Exception: #{e}"
     close_connection
   end
 
   def close_connection
     $connected = false
-    session[:logged_in] = nil
+    session[:logged_in] = false
   end
 
   def open_connection
@@ -108,7 +111,7 @@ module ApplicationHelpers
   end
 
   def get_average_revenue(total_revenue, duration)
-    (total_revenue/duration).round(2)
+    (total_revenue / duration).round(2)
   rescue
     'N/A'
   end
@@ -140,9 +143,7 @@ module ApplicationHelpers
 
     sales.map do |old_hash|
       name_hash.map do |new_hash|
-        if old_hash[:name] == new_hash[:name]
-          new_hash[:data].push(old_hash[:data])
-        end
+        new_hash[:data].push(old_hash[:data]) if old_hash[:name] == new_hash[:name]
       end
     end
 
@@ -162,7 +163,6 @@ module ApplicationHelpers
     name_hash
   end
 
-  # Return order query parameters hash
   def order_parameters_paginate(start_date, end_date, page)
     {
       :created_at_min => start_date + " 0:00",
@@ -173,10 +173,9 @@ module ApplicationHelpers
     }
   end
 
-
-  # Return array of ActiveRecord::Collections, each containing up to :limit (250) orders
-  # Continue to query next page until less than :limit orders are returned, indicating no next pages with orders matching query
   def get_list_of_orders(start_date, end_date)
+    # Return array of ActiveRecord::Collections, each containing up to :limit (250) orders
+    # Continue to query next page until less than :limit orders are returned, indicating no next pages with orders matching query
 
     # Get first 250 results matching query
     params = order_parameters_paginate(start_date, end_date, 1)
@@ -191,9 +190,7 @@ module ApplicationHelpers
     revenue_metrics.flat_map { |orders| orders.map { |order| order } }
   end
 
-
   def get_detailed_revenue_metrics(start_date, end_date = DateTime.now)
-
     order_list = get_list_of_orders(start_date, end_date)
 
     # Revenue
@@ -204,9 +201,9 @@ module ApplicationHelpers
     max_daily_revenue = daily_revenue.max_by { |_, v| v }[1]
 
     # Retrieve Metrics
-    sales_report = ShopifyDashboardPlus::SalesReport.new(order_list).to_h
-    revenue_report = ShopifyDashboardPlus::RevenueReport.new(order_list).to_h
-    traffic_report = ShopifyDashboardPlus::TrafficReport.new(order_list).to_h
+    sales_report     = ShopifyDashboardPlus::SalesReport.new(order_list).to_h
+    revenue_report   = ShopifyDashboardPlus::RevenueReport.new(order_list).to_h
+    traffic_report   = ShopifyDashboardPlus::TrafficReport.new(order_list).to_h
     discounts_report = ShopifyDashboardPlus::DiscountReport.new(order_list).to_h
     metrics = {
       :total_revenue     => total_revenue,

@@ -59,8 +59,9 @@ class TestShopifyDashboardPlus < MiniTest::Test
   #######################
   ## Common Methods
   #######################
+
   def env_set?
-    return true if ENV['API_KEY'] && ENV['API_PWD'] && ENV['SHOP_NAME']
+    true if ENV['API_KEY'] && ENV['API_PWD'] && ENV['SHOP_NAME']
   end
 
   def authenticate
@@ -72,10 +73,10 @@ class TestShopifyDashboardPlus < MiniTest::Test
       # Shopify URL will appear as <api_key>:<api_pwd>@<storename>.myshopify.com/<path>
       # VCR casettes should match on the URI path, not the host information
       payload = if env_set?
-        "api_key=#{ENV['API_KEY']}&api_pwd=#{ENV['API_PWD']}&shop_name=#{ENV['SHOP_NAME']}"
-      else
-        "api_key=testkey&api_pwd=testpwd&shop_name=testshop"
-      end
+                  "api_key=#{ENV['API_KEY']}&api_pwd=#{ENV['API_PWD']}&shop_name=#{ENV['SHOP_NAME']}"
+                else
+                  "api_key=testkey&api_pwd=testpwd&shop_name=testshop"
+                end
       
       post('/connect', payload, "Content-Type" => "application/x-www-form-urlencoded")
     end
@@ -123,9 +124,9 @@ class TestShopifyDashboardPlus < MiniTest::Test
     end
   end
 
-  # Validate results with no start date or end date parameter set
-  # Results should default to today's results
   def test_no_parameters
+    # Validate results with no start date or end date parameter set
+    # Results should default to today's results
     return unless env_set?
     
     authenticate
@@ -144,9 +145,9 @@ class TestShopifyDashboardPlus < MiniTest::Test
   end
 
 
-  # Validate results with only start date parameter set
-  # End date should default to today
   def test_only_start_date_parameter
+    # Validate results with only start date parameter set
+    # End date should default to today
     authenticate
     url = build_url(:from => "2010-01-01")
 
@@ -158,8 +159,8 @@ class TestShopifyDashboardPlus < MiniTest::Test
   end
 
 
-  # Validate results with only the end date parameter set
   def test_only_end_date_parameter
+    # Validate results with only the end date parameter set
     authenticate
     url = build_url(:to => @hardcoded_day)
 
@@ -171,8 +172,8 @@ class TestShopifyDashboardPlus < MiniTest::Test
   end
 
 
-  # Validate results over a valid start date and end date
   def test_valid_date_range
+    # Validate results over a valid start date and end date
     authenticate
     url = build_url(:from => "2010-01-01", :to => "2015-01-01")
 
@@ -185,8 +186,8 @@ class TestShopifyDashboardPlus < MiniTest::Test
   end
 
 
-  # Validate that more than 250 results can be returned (the limit)
   def test_pagination
+    # Validate that more than 250 results can be returned (the limit)
     authenticate
     url = build_url(:from => "2010-01-01", :to => "2015-01-01")
     
@@ -201,8 +202,8 @@ class TestShopifyDashboardPlus < MiniTest::Test
   end
 
 
-  # Validate an empty order is rendered correctly
   def test_empty_order_set
+    # Validate an empty order is rendered correctly
     authenticate
     url = build_url
 

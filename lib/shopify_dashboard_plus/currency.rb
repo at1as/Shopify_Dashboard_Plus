@@ -5,7 +5,7 @@
 # Since all numbers are currency, the plus method will trim to two decimals
 # Numbers returned as: 44, 44.5, or 44.51
 # Note that Numbers are class Fixnum in Ruby < 2.4 and Integer from 2.4 onwards
-module Currency  
+module Currency
   if 0.class.to_s == "Fixnum"
     refine Fixnum do
       def plus(amount)

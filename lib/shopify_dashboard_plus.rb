@@ -14,23 +14,24 @@ require_relative 'shopify_dashboard_plus/sales_report'
 require_relative 'shopify_dashboard_plus/traffic_report'
 require_relative 'shopify_dashboard_plus/version'
 
+
+HELP = <<-USAGE
+Set global variables through the WebUI or call with the correct ENV variables:
+
+  Example:
+
+    SHP_KEY="<shop_key>" SHP_PWD="<shop_password>" SHP_NAME="<shop_name>" ./lib/shopify-dashboard.rb
+USAGE
+
+
 configure do
   enable :sessions
   
-  set :public_dir, "#{__dir__}/../public"
-  set :views, "#{__dir__}/../views"
-
-  $connected ||= false
-  $metrics   ||= false
-  $flash     ||= nil
-
-  HELP = <<-USAGE
-  Set global variables through the WebUI or call with the correct ENV variables:
+  set :public_dir, Proc.new { File.join(root, "../public") }
+  set :views, Proc.new { File.join(root, "../views") }
   
-    Example:
-
-      SHP_KEY="<shop_key>" SHP_PWD="<shop_password>" SHP_NAME="<shop_name>" ./lib/shopify-dashboard.rb
-  USAGE
+  $connected ||= false
+  $flash     ||= nil
 
   # If Environment variables were set, connect to Shopify Admin immediately
   # Refuse to start server if variables are passed but incorrect
@@ -46,7 +47,7 @@ configure do
       $shop_name = SHOP_NAME
       $currency  = shop.money_with_currency_format
       $connected = true
-    rescue Exception => e
+    rescue URI::InvalidURIError, ActiveResource::ResourceNotFound => e
       puts "\nFailed to connect using provided credentials for API KEY #{API_KEY} : #{e})\n #{HELP}"
       exit
     end
@@ -58,7 +59,7 @@ helpers ApplicationHelpers
 
 before do
   $flash   = ''
-  $metrics = false
+  @metrics = false
 end
 
 
@@ -75,7 +76,6 @@ get '/' do
 
   if date_range_valid?(from, to)
     @metrics = get_detailed_revenue_metrics(from, to)
-    $metrics = true
   else
     $flash = "Invalid Dates. Please use format YYYY-MM-DD"
   end
