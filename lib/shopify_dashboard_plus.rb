@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require 'sinatra'
 require 'tilt/erb'
@@ -16,19 +17,22 @@ configure do
   set :views, "#{__dir__}/../views"
 
   $connected ||= false
-  $metrics ||= false
-  $flash ||= nil
+  $metrics   ||= false
+  $flash     ||= nil
 
-  HELP = <<-END
+  HELP = <<-USAGE
   Set global variables through the WebUI or call with the correct ENV variables:
-    Example: SHP_KEY=\"<shop_key>\" SHP_PWD=\"<shop_password>\" SHP_NAME=\"<shop_name>\" ./lib/shopify-dashboard.rb
-  END
+  
+    Example:
 
-  # If Environment variables were set connect to Shopify Admin immediately
+      SHP_KEY="<shop_key>" SHP_PWD="<shop_password>" SHP_NAME="<shop_name>" ./lib/shopify-dashboard.rb
+  USAGE
+
+  # If Environment variables were set, connect to Shopify Admin immediately
   # Refuse to start server if variables are passed but incorrect
   if ENV["SHP_KEY"] && ENV["SHP_PWD"] && ENV["SHP_NAME"]
-    API_KEY = ENV["SHP_KEY"]
-    PASSWORD = ENV["SHP_PWD"]
+    API_KEY   = ENV["SHP_KEY"]
+    PASSWORD  = ENV["SHP_PWD"]
     SHOP_NAME = ENV["SHP_NAME"]
     
     begin
@@ -57,17 +61,18 @@ configure do
     end
   end
 
-  class Float
+  # For Ruby 2.4.0 onwards
+  class Integer
     def plus(amount)
       result = self + (amount.to_f rescue 0)
       result.round(2)
     end
   end
 
-  # For < Ruby 2.1 Compatability
-  class Array
-    def to_h
-      Hash[*self.flatten]
+  class Float
+    def plus(amount)
+      result = self + (amount.to_f rescue 0)
+      result.round(2)
     end
   end
 end
@@ -76,19 +81,19 @@ helpers ApplicationHelpers
 
 
 before do
-  $flash = nil
+  $flash   = nil
   $metrics = false
 end
 
 
 get '/' do
-  redirect '/connect' unless connected? and authenticated?
+  redirect '/connect' unless connected? && authenticated?
 
   # If no start date is set, default to match end date
   # If no date parameters are set, default both to today
   @today = date_today
-  from = (params[:from] if not params[:from].empty? rescue nil) || (params[:to] if not params[:to].empty? rescue nil) || @today
-  to = (params[:to] if not params[:to].empty? rescue nil) || @today
+  from   = (params[:from] unless params[:from].empty? rescue nil) || (params[:to] unless params[:to].empty? rescue nil) || @today
+  to     = (params[:to] unless params[:to].empty? rescue nil) || @today
 
   to = @today if to > @today
 
@@ -118,7 +123,9 @@ post '/connect' do
 end
 
 post '/disconnect' do
-  API_KEY, API_PWD, SHP_NAME = "", "", ""
+  API_KEY  = ""
+  API_PWD  = ""
+  SHP_NAME = ""
   close_connection
 
   erb :connect
@@ -133,3 +140,4 @@ after '/quit' do
   puts "\nExiting..."
   exit!
 end
+

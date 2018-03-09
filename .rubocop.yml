@@ -1,0 +1,16 @@
+AllCops:
+  TargetRubyVersion: 2.3
+  Exclude:
+    - Gemfile
+    - shopify_dashboard_plus.gemspec
+
+Metrics/LineLength:
+  Exclude:
+    - test/**/*
+  Max: 120
+
+Style/HashSyntax:
+  Enabled: false
+
+Style/StringLiterals:
+  Enabled: false

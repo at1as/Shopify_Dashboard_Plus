@@ -1,18 +1,20 @@
+# frozen_string_literal: true
+
 module ApplicationHelpers
 
   include Rack::Utils
   alias_method :h, :escape_html
 
-  DESIRED_FIELDS = [
-    "total_price",
-    "created_at",
-    "billing_address",
-    "currency",
-    "line_items",
-    "customer",
-    "referring_site",
-    "discount_codes"
-  ]
+  DESIRED_FIELDS = %w[
+    total_price
+    created_at
+    billing_address
+    currency
+    line_items
+    customer
+    referring_site
+    discount_codes
+  ].freeze
 
   ## Authentication Helpers
   def authenticated?
@@ -23,14 +25,14 @@ module ApplicationHelpers
   ## Connection & Setup Helpers
   
   def set_connection(key, pwd, name)
-    shop_url = "https://#{key}:#{pwd}@#{name}.myshopify.com/admin"
-    ShopifyAPI::Base.site = shop_url
+    ShopifyAPI::Base.site = "https://#{key}:#{pwd}@#{name}.myshopify.com/admin"
     shop = ShopifyAPI::Shop.current
+    
     $shop_name = name
-    $currency = shop.money_with_currency_format
+    $currency  = shop.money_with_currency_format
     open_connection
   rescue => e
-    puts "Exception", e
+    puts "Exception: #{e}"
     close_connection
   end
 
@@ -111,16 +113,17 @@ module ApplicationHelpers
     # Create hash entry for every day within interval over which to inspect sales
     revenue_per_day = {}
     days = get_date_range(start_date, end_date)
-    (0..days).each{ |day| revenue_per_day[(DateTime.parse(end_date) - day).strftime("%Y-%m-%d")] = 0 }
+    (0..days).each { |day| revenue_per_day[(DateTime.parse(end_date) - day).strftime("%Y-%m-%d")] = 0 }
 
     # Retreive array of ActiveRecord::Collections, each containing orders between the start and end date
-    order_details = orders.map{ |order| [order.created_at, order.total_price.to_f] }
+    order_details = orders.map { |order| [order.created_at, order.total_price.to_f] }
     
     # Filter order details into daily totals and return
     order_details.each do |(date, total)|
       day_index = DateTime.parse(date).strftime('%Y-%m-%d')
       revenue_per_day[day_index] = revenue_per_day[day_index].plus(total)
     end
+    
     revenue_per_day
   end
 
@@ -161,8 +164,8 @@ module ApplicationHelpers
     {  
       :created_at_min => start_date + " 0:00", 
       :created_at_max => end_date + " 23:59:59", 
-      :limit => 250,
-      :page => page,
+      :limit  => 250,
+      :page   => page,
       :fields => DESIRED_FIELDS 
     }
   end
@@ -203,14 +206,15 @@ module ApplicationHelpers
     traffic_report = ShopifyDashboardPlus::TrafficReport.new(order_list).to_h
     discounts_report = ShopifyDashboardPlus::DiscountReport.new(order_list).to_h
     metrics = { 
-      :total_revenue => total_revenue,
-      :average_revenue => avg_revenue,
-      :daily_revenue => daily_revenue,
+      :total_revenue     => total_revenue,
+      :average_revenue   => avg_revenue,
+      :daily_revenue     => daily_revenue,
       :max_daily_revenue => max_daily_revenue,
-      :duration => duration
+      :duration          => duration
     }
 
     [sales_report, revenue_report, traffic_report, discounts_report, metrics].inject(&:merge)
   end
 
 end
+

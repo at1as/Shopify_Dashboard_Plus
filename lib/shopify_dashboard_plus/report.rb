@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'helpers'
 
 module ShopifyDashboardPlus
@@ -6,8 +8,8 @@ module ShopifyDashboardPlus
     include ApplicationHelpers
 
     def initialize(orders)
-      @orders = orders
-      @line_items = orders.flat_map{ |order| order.line_items.map { |line_item| line_item }}
+      @orders     = orders
+      @line_items = orders.flat_map{ |order| order.line_items.map { |line_item| line_item } }
     end
   end
 
@@ -19,6 +21,7 @@ module ShopifyDashboardPlus
       @orders.each do |order|
         sales_per_country[order.billing_address.country] += 1 if order.attributes['billing_address']
       end
+      
       sales_per_country
     end
 
@@ -37,10 +40,13 @@ module ShopifyDashboardPlus
       @orders.each do |order|
         order.line_items.each do |item|
           customer_name = "#{order.customer.first_name} #{order.customer.last_name} (#{order.customer.email})"
-          customer_sales.push({ :name => item.title,
-                                :data => [customer_name, item.price.to_f]})
+          customer_sales.push(
+            :name => item.title,
+            :data => [customer_name, item.price.to_f]
+          )
         end
       end
+      
       hash_to_graph_format(customer_sales)
     end
 
@@ -50,7 +56,10 @@ module ShopifyDashboardPlus
       @line_items.each do |item|
         sales_per_price_point[item.price] += 1
       end
-      sales_per_price_point.sort_by{ |x,y| x.to_f }.to_h rescue {}
+      
+      sales_per_price_point.sort_by { |x, _| x.to_f }.to_h
+    rescue
+      {}
     end
 
     def number_of_sales
@@ -63,19 +72,20 @@ module ShopifyDashboardPlus
       @orders.each do |order|
         currencies[order.currency] += 1 if order.attributes['currency']
       end
+      
       currencies
     end
 
     def to_h
       {
         :currencies_per_sale => currencies_per_sale,
-        :most_used_currency => currencies_per_sale.sort_by{ |k, v| v }.last,
+        :most_used_currency => currencies_per_sale.sort_by { |_, v| v }.last,
         :sales_per_country => sales_per_country,
-        :most_sales_per_country => sales_per_country.sort_by{ |k, v| v }.last,
+        :most_sales_per_country => sales_per_country.sort_by { |_, v| v }.last,
         :sales_per_price => sales_per_price_point,
-        :top_selling_price_point => sales_per_price_point.sort_by{ |k, v| v }.last,
+        :top_selling_price_point => sales_per_price_point.sort_by { |_, v| v }.last,
         :sales_per_product => sales_per_product,
-        :top_selling_product => sales_per_product.sort_by{ |k, v| v }.last,
+        :top_selling_product => sales_per_product.sort_by { |_, v| v }.last,
         :sales_per_customer => sales_per_customer,
         :number_of_sales => number_of_sales
       }
@@ -88,10 +98,13 @@ module ShopifyDashboardPlus
       revenue_per_country = []
       @orders.each do |order|
         order.line_items.each do |item|
-          revenue_per_country.push({:name => item.title, 
-                                    :data => [order.billing_address.country, item.price.to_f]})
+          revenue_per_country.push(
+            :name => item.title, 
+            :data => [order.billing_address.country, item.price.to_f]
+          )
         end
       end
+      
       hash_to_graph_format(revenue_per_country, merge_results: true)
     end
 
@@ -100,7 +113,10 @@ module ShopifyDashboardPlus
       @line_items.each do |item|
         revenue_per_price_point[item.price] = revenue_per_price_point[item.price].plus(item.price)
       end
-      revenue_per_price_point.sort_by{ |x,y| x.to_f }.to_h rescue {}
+ 
+      revenue_per_price_point.sort_by { |x, _| x.to_f }.to_h
+    rescue
+      {}
     end
 
     def revenue_per_product
@@ -108,16 +124,17 @@ module ShopifyDashboardPlus
       @line_items.each do |item|
         revenue_per_product[item.title] = revenue_per_product[item.title].plus(item.price)
       end
+ 
       revenue_per_product
     end
 
     def to_h
       {
-        :revenue_per_country => revenue_per_country,
-        :revenue_per_product => revenue_per_product,
-        :top_grossing_product => revenue_per_product.sort_by{ |k, v| v }.last,
-        :revenue_per_price_point => revenue_per_price_point,
-        :top_grossing_price_point => revenue_per_price_point.sort_by{ |k, v| v}.last
+        :revenue_per_country  => revenue_per_country,
+        :revenue_per_product  => revenue_per_product,
+        :top_grossing_product => revenue_per_product.sort_by { |_, v| v }.last,
+        :revenue_per_price_point  => revenue_per_price_point,
+        :top_grossing_price_point => revenue_per_price_point.sort_by { |_, v| v }.last
       }
     end
   end
@@ -126,21 +143,23 @@ module ShopifyDashboardPlus
   class DiscountReport < Report
 
     def discount_usage
-      discount_value, discount_used = Hash.new(0.0), Hash.new(0)
+      discount_value = Hash.new(0.0)
+      discount_used  = Hash.new(0)
 
       @orders.each do |order|
-        if order.attributes['discount_codes']
-          order.discount_codes.each do |discount_code|
-            discount_value[discount_code.code] = discount_value[discount_code.code].plus(discount_code.amount)
-            discount_used[discount_code.code] += 1
-          end
+        next unless order.attributes['discount_codes']
+        
+        order.discount_codes.each do |discount_code|
+          discount_value[discount_code.code] = discount_value[discount_code.code].plus(discount_code.amount)
+          discount_used[discount_code.code] += 1
         end
       end
+      
       {
         :discount_savings => discount_value,
-        :top_discount_savings => discount_value.sort_by{ |k, v| v }.last,
+        :top_discount_savings => discount_value.sort_by { |_, v| v }.last,
         :discount_quantity => discount_used,
-        :most_used_discount_code => discount_used.sort_by{ |k, v| v }.last
+        :most_used_discount_code => discount_used.sort_by { |_, v| v }.last
       }
     end
 
@@ -153,7 +172,8 @@ module ShopifyDashboardPlus
   class TrafficReport < Report
 
     def number_of_referrals
-      referring_sites, referring_pages = Hash.new(0), Hash.new(0)
+      referring_sites = Hash.new(0)
+      referring_pages = Hash.new(0)
 
       @orders.each do |order|
         if order.attributes['referring_site'].empty?
@@ -166,16 +186,18 @@ module ShopifyDashboardPlus
           referring_sites[host] += 1
         end
       end
+      
       {
-        :referral_sites => referring_sites.sort().to_h,
+        :referral_sites    => referring_sites.sort.to_h,
         :top_referral_site => max_hash_key_exclude_value(referring_sites, 'none'),
-        :referral_pages => referring_pages.sort().to_h,
+        :referral_pages    => referring_pages.sort.to_h,
         :top_referral_page => max_hash_key_exclude_value(referring_pages, 'none')
       }
     end
 
     def traffic_revenue
-      revenue_per_referral_page, revenue_per_referral_site = Hash.new(0.0), Hash.new(0.0)
+      revenue_per_referral_page = Hash.new(0.0)
+      revenue_per_referral_site = Hash.new(0.0)
 
       @orders.each do |order|
         order.line_items.each do |item|
@@ -190,10 +212,11 @@ module ShopifyDashboardPlus
           end
         end
       end
+      
       {
-        :revenue_per_referral_site => revenue_per_referral_site.sort().to_h,
+        :revenue_per_referral_site => revenue_per_referral_site.sort.to_h,
         :top_referral_site_revenue => max_hash_key_exclude_value(revenue_per_referral_site, 'none'),
-        :revenue_per_referral_page => revenue_per_referral_page.sort().to_h,
+        :revenue_per_referral_page => revenue_per_referral_page.sort.to_h,
         :top_referral_page_revenue => max_hash_key_exclude_value(revenue_per_referral_page, 'none')
       }
     end

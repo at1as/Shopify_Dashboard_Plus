@@ -1,6 +1,6 @@
-ENV['RACK_ENV'] = 'test'
+# frozen_string_literal: true
 
-require 'minitest/autorun'                                                                                                                                           
+require 'minitest/autorun'
 require 'rack/test'
 require 'tilt/erb'
 require 'capybara'
@@ -11,6 +11,7 @@ require './lib/shopify_dashboard_plus/version'
 require './lib/shopify_dashboard_plus/helpers'
 require './lib/shopify_dashboard_plus/report'
 
+ENV['RACK_ENV'] = 'test'
 
 VCR.configure do |config|
   config.cassette_library_dir = 'test/fixtures/vcr_cassettes'
@@ -19,20 +20,19 @@ VCR.configure do |config|
   # Requests can be captured using webmock
   config.hook_into :webmock
   config.ignore_hosts '127.0.0.1', 'localhost', '0.0.0.0', 'example.com'
-  #config.debug_logger = File.open('request_log.log', 'w')
+  # config.debug_logger = File.open('request_log.log', 'w')
 
   # Allow other test suites to send real HTTP requests
   config.allow_http_connections_when_no_cassette = true
 
   # Show response payload in body as plaintext and hide API credentials
   config.before_record { |cassette| cassette.response.body.force_encoding('UTF-8') }
-  config.filter_sensitive_data('<API_KEY>') { ENV['API_KEY'] || "testkey" }
-  config.filter_sensitive_data('<API_PWD>') { ENV['API_PWD'] || "testpwd" }
-  config.filter_sensitive_data('<SHOP_NAME>') { ENV['SHOP_NAME'] || "testshop"}
+  config.filter_sensitive_data('<API_KEY>')   { ENV['API_KEY']   || "testkey"  }
+  config.filter_sensitive_data('<API_PWD>')   { ENV['API_PWD']   || "testpwd"  }
+  config.filter_sensitive_data('<SHOP_NAME>') { ENV['SHOP_NAME'] || "testshop" }
 
   # Match certain requests by date in the payload
-  config.register_request_matcher :port do |request_1, request_2|
-  
+  config.register_request_matcher :port do |req1, req2|
     @today == VCR::HTTPInteraction
   end
 end
@@ -57,31 +57,29 @@ class TestShopifyDashboardPlus < MiniTest::Test
   ## Common Methods
   #######################
   def env_set?
-    return true if (ENV['API_KEY'] and ENV['API_PWD'] and ENV['SHOP_NAME'])
-    false
+    return true if ENV['API_KEY'] && ENV['API_PWD'] && ENV['SHOP_NAME']
   end
 
   def authenticate
-    unless authenticated
-      VCR.use_cassette('authenticate', :match_requests_on => [:path]) do
+    return if authenticated
+    
+    VCR.use_cassette('authenticate', :match_requests_on => [:path]) do
 
-        # Use environment variables if specified, otherwise use fake information
-        # Shopify URL will appear as <api_key>:<api_pwd>@<storename>.myshopify.com/<path>
-        # VCR casettes should match on the URI path, not the host information
-        if env_set?
-          payload = "api_key=#{ENV['API_KEY']}&api_pwd=#{ENV['API_PWD']}&shop_name=#{ENV['SHOP_NAME']}"
-        else
-          payload = "api_key=testkey&api_pwd=testpwd&shop_name=testshop"
-        end
-        
-        post('/connect', payload, {"Content-Type" => "application/x-www-form-urlencoded"})
+      # Use environment variables if specified, otherwise use fake information
+      # Shopify URL will appear as <api_key>:<api_pwd>@<storename>.myshopify.com/<path>
+      # VCR casettes should match on the URI path, not the host information
+      payload = if env_set?
+        "api_key=#{ENV['API_KEY']}&api_pwd=#{ENV['API_PWD']}&shop_name=#{ENV['SHOP_NAME']}"
+      else
+        "api_key=testkey&api_pwd=testpwd&shop_name=testshop"
       end
-      authenticated = true
+      
+      post('/connect', payload, "Content-Type" => "application/x-www-form-urlencoded")
     end
   end
 
   def build_url(from: nil, to: nil)
-    if from and to
+    if from && to
       "/?from=#{from}&to=#{to}"
     elsif from
       "/?from=#{from}"
@@ -93,7 +91,7 @@ class TestShopifyDashboardPlus < MiniTest::Test
   end
 
   def validate_body(returned_body)
-   # No Three digit precision decimal points
+    # No Three digit precision decimal points
     assert_equal 0, returned_body.scan(/[0-9]{1,}[.][0-9]{3,}/).length
 
     # Time / Times is pluralized correctly
@@ -105,7 +103,7 @@ class TestShopifyDashboardPlus < MiniTest::Test
     assert_equal 0, returned_body.scan(/[02-9] Referral^[s]/).length
 
     # Valid Response
-    assert_match /Retrieve metrics over the following period/, returned_body
+    assert_match(/Retrieve metrics over the following period/, returned_body)
     assert_equal 0, returned_body.scan(/Invalid Dates. Please use format YYYY-MM-DD/).length
   end
 
@@ -118,27 +116,27 @@ class TestShopifyDashboardPlus < MiniTest::Test
     VCR.turned_off do
       get '/?from=2013-01-01&to=2015-01-01'
       follow_redirect!
-      assert_match /connect/, last_request.fullpath
+      assert_match(/connect/, last_request.fullpath)
     end
   end
 
   # Validate results with no start date or end date parameter set
   # Results should default to today's results
   def test_no_parameters
+    return unless env_set?
+    
     authenticate
     url = build_url
     
-    if env_set?
     # Will reuse cassette for tests run the same day (in which the URL paramater created_at_min=YYYY-MM-DD will be identical)
     # Will append a new entry on a new day
-      VCR.use_cassette(:orders_no_paramaters, :erb => { :today => @today }, :record => :once, :match_requests_on => [:method]) do
-        r = get url
-        assert_equal last_request.fullpath, '/'
+    VCR.use_cassette(:orders_no_paramaters, :erb => { :today => @today }, :record => :once, :match_requests_on => [:method]) do
+      r = get url
+      assert_equal last_request.fullpath, '/'
 
-        # Ensure default start and end date are today's date 
-        assert_equal 2, r.body.scan(/placeholder=\"#{@today}\"/).length
-        validate_body(r.body)
-      end
+      # Ensure default start and end date are today's date
+      assert_equal 2, r.body.scan(/placeholder=\"#{@today}\"/).length
+      validate_body(r.body)
     end
   end
 
@@ -177,7 +175,7 @@ class TestShopifyDashboardPlus < MiniTest::Test
 
     VCR.use_cassette(:orders_from_2010_01_01_to_2015_01_01, :match_requests_on => [:path]) do
       r = get url
- 
+
       assert_equal '/?from=2010-01-01&to=2015-01-01', last_request.fullpath
       validate_body(r.body)
     end
@@ -222,7 +220,7 @@ class TestShopifyDashboardPlus < MiniTest::Test
     url = build_url(:from => "2015-01-01", :to => "2010-01-01")
 
     get url
-    assert_match /Invalid Dates. Please use format YYYY-MM-DD/, last_response.body
+    assert_match(/Invalid Dates. Please use format YYYY-MM-DD/, last_response.body)
   end
 
   def test_unsupported_date_characters
@@ -230,7 +228,6 @@ class TestShopifyDashboardPlus < MiniTest::Test
     url = build_url(:from => "abcd", :to => "fghijk")
 
     get url
-    assert_match /Invalid Dates. Please use format YYYY-MM-DD/, last_response.body
+    assert_match(/Invalid Dates. Please use format YYYY-MM-DD/, last_response.body)
   end
-
 end
