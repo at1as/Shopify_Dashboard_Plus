@@ -1,4 +1,4 @@
-ENV['RACK_ENV'] = 'test'
+# frozen_string_literal: true
 
 require 'minitest/autorun'                                                                                                                                           
 require 'rack/test'
@@ -8,8 +8,12 @@ require 'webmock'
 require './lib/shopify_dashboard_plus.rb'
 require './lib/shopify_dashboard_plus/version'
 require './lib/shopify_dashboard_plus/helpers'
-require './lib/shopify_dashboard_plus/report'
+require './lib/shopify_dashboard_plus/discount_report'
+require './lib/shopify_dashboard_plus/revenue_report'
+require './lib/shopify_dashboard_plus/sales_report'
+require './lib/shopify_dashboard_plus/traffic_report'
 
+ENV['RACK_ENV'] = 'test'
 
 ## Application tests related to:
 ##   Launching application, File Structure, and Version
@@ -17,10 +21,10 @@ require './lib/shopify_dashboard_plus/report'
 
 class TestShopifyDashboardPlus < MiniTest::Test
   include Rack::Test::Methods
-  
+
   # VCR from test_mockdata test suite should not intercept these HTTP requests
   VCR.turned_off do
-    
+
     # Allow real HTTP Requests
     WebMock.allow_net_connect!
 

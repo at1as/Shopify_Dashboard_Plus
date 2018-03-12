@@ -1,24 +1,24 @@
-module ModifyData
+# frozen_string_literal: true
 
+module ModifyData
   Faker::Config.locale = :"en-CA"
-  
 
   # Replace the shop data from real stores with randomly generated data
-  def ModifyData.anonymize_shop(raw_store_data)
+  def self.anonymize_shop(raw_store_data)
 
     store_data = JSON.parse(raw_store_data).fetch('shop') rescue (return raw_store_data)
-    
+
     # Store Details
     store_data['id'] = Faker::Number.number(8) if store_data['id']
     store_data['name'] = Faker::Company.name if store_data['name']
     store_data['domain'] = Faker::Internet.url if store_data['domain']
-    
+
     # Owner
     store_data['shop_owner'] = Faker::Name.name if store_data['shop_owner']
     store_data['phone'] = Faker::PhoneNumber.phone_number if store_data['phone']
     store_data['email'] = Faker::Internet.email if store_data['email']
     store_data['customer_email'] = Faker::Internet.email if store_data['customer_email']
-    
+
     # Address
     store_data['city'] = Faker::Address.city if store_data['city']
     store_data['address1'] = Faker::Address.street_address if store_data['address1']
@@ -35,10 +35,10 @@ module ModifyData
 
   # Intercept Shopify Orders and replace data with generated mock data
   # Ensure predictable replacements of data
-  # e.g. If a real order from John Galt is replaced with a fake name, Jane Smith, 
-  # every instance of John Galt should be replaced with the same data. 
-  def ModifyData.anonymize_orders(raw_order_data)
-    
+  # e.g. If a real order from John Galt is replaced with a fake name, Jane Smith,
+  # every instance of John Galt should be replaced with the same data.
+  def self.anonymize_orders(raw_order_data)
+
     order_data = JSON.parse(raw_order_data).fetch('orders') rescue (return raw_order_data)
 
     order_data = anonymize_discounts(order_data)
@@ -55,8 +55,13 @@ module ModifyData
 
 
   # Traverse through orders and return a new array with each order <multiplier_constant> times
-  def ModifyData.duplicate_orders(raw_order_data, multiplier_constant:)
-    order_data = JSON.parse(raw_order_data).fetch('orders') rescue (return raw_order_data)
+  def self.duplicate_orders(raw_order_data, multiplier_constant:)
+    begin
+      order_data = JSON.parse(raw_order_data).fetch('orders')
+    rescue
+      return raw_order_data
+    end
+
     duplicated_order_data = []
 
     order_data.each do |order|
@@ -71,16 +76,13 @@ module ModifyData
 
 
   # Ensure at least <floor> orders exist, or otherwise continually append the last order until enough orders exist
-  def ModifyData.number_of_orders_floor(raw_order_data, floor:)
+  def self.number_of_orders_floor(raw_order_data, floor:)
     order_data = JSON.parse(raw_order_data).fetch('orders') rescue (return raw_order_data)
 
     order_delta = order_data.length - floor
+    return raw_order_data if order_delta >= 0
 
-    if order_delta >= 0
-      return raw_order_data
-    else
-      order_delta.to_i.times { new_order_data << order_data.last }
-    end
+    order_delta.to_i.times { new_order_data << order_data.last }
 
     # Set data back under the json 'orders' key and return as JSON
     returned_order_data = JSON.parse('{}')
@@ -90,17 +92,14 @@ module ModifyData
 
 
   # Ensure no more than <ceiling> orders exist, or otherwise clip the array at <ceiling>
-  def ModifyData.number_of_orders_ceiling(raw_order_data, ceiling:)
+  def self.number_of_orders_ceiling(raw_order_data, ceiling:)
     order_data = JSON.parse(raw_order_data).fetch('orders') rescue (return raw_order_data)
     trimmed_order_data = []
 
     order_delta = ceiling - order_data.length
+    return raw_order_data if order_delta >= 0
 
-    if order_delta >= 0
-      return raw_order_data
-    else
-      ceiling.to_i.times { |i| trimmed_order_data << order_data[i] }
-    end
+    ceiling.to_i.times { |i| trimmed_order_data << order_data[i] }
 
     # Set data back under the json 'orders' key and return as JSON
     returned_order_data = JSON.parse('{}')

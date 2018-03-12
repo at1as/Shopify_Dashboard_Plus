@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'YAML'
 require 'json'
 require 'faker'
@@ -6,7 +8,7 @@ require_relative 'resources/anonymizer'
 
 
 def strip_shop_details(cassette_name:)
-	include ModifyData
+  include ModifyData
   include Anonymizer
 
   # Load shop details authentication VCR cassette

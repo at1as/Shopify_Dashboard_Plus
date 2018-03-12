@@ -57,7 +57,7 @@ Choose the interval over which to get data and see it displayed as:
  
 ## Notes
 * Tested with:
-  * Ruby 2.0.0, 2.1.2, 2.2.0 on Mac OS 10.10 (Locally)
-  * Ruby 2.0.0, 2.1.3, 2.2.0 on Ubuntu Linux 12.04 (TravisCI)
-* Requires >= Ruby 2.0.0
+  * Ruby 2.3.6, 2.4.3, 2.5.0 on Mac OS 10.10 (Locally)
+  * Ruby 2.3.6, 2.4.3, 2.5.0 on Ubuntu Linux (TravisCI)
+* Support for unmaintained versions of Ruby have been dropped. This gem requires >= Ruby 2.3.0
 * Tested against [Learning Photography](http://learning.photography)

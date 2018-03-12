@@ -1,8 +1,9 @@
-ENV['RACK_ENV'] = 'test'
+# frozen_string_literal: true
 
-require 'minitest/autorun'                                                                                                                                           
+require 'minitest/autorun'
 require 'rack/test'
 require 'capybara'
+require 'capybara/dsl'
 require 'capybara/webkit'
 require 'tilt/erb'
 require 'vcr'
@@ -10,8 +11,12 @@ require 'webmock'
 require './lib/shopify_dashboard_plus.rb'
 require './lib/shopify_dashboard_plus/version'
 require './lib/shopify_dashboard_plus/helpers'
-require './lib/shopify_dashboard_plus/report'
+require './lib/shopify_dashboard_plus/discount_report'
+require './lib/shopify_dashboard_plus/revenue_report'
+require './lib/shopify_dashboard_plus/sales_report'
+require './lib/shopify_dashboard_plus/traffic_report'
 
+ENV['RACK_ENV'] = 'test'
 
 ## Application tests related to:
 ##   Front-end testing (flash errors messages, etc) using Capybara-Webkit
@@ -40,7 +45,7 @@ class TestShopifyDashboardPlus < MiniTest::Test
         config.page.driver.browser.ignore_ssl_errors
         config.default_wait_time = 10
         config.always_include_port = true
-        config.server_port = 31337
+        config.server_port = 31_337
         config.app_host = "http://127.0.0.1"
       end
     end

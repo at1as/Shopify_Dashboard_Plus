@@ -1,42 +1,51 @@
+# frozen_string_literal: true
+
+require_relative 'currency'
+
 module ApplicationHelpers
 
   include Rack::Utils
+  using Currency
+
   alias_method :h, :escape_html
 
-  DESIRED_FIELDS = [
-    "total_price",
-    "created_at",
-    "billing_address",
-    "currency",
-    "line_items",
-    "customer",
-    "referring_site",
-    "discount_codes"
-  ]
+  DESIRED_FIELDS = %w[
+    total_price
+    created_at
+    billing_address
+    currency
+    line_items
+    customer
+    referring_site
+    discount_codes
+  ].freeze
 
   ## Authentication Helpers
+
   def authenticated?
     session[:logged_in]
   end
 
 
   ## Connection & Setup Helpers
-  
+
   def set_connection(key, pwd, name)
-    shop_url = "https://#{key}:#{pwd}@#{name}.myshopify.com/admin"
-    ShopifyAPI::Base.site = shop_url
+    ShopifyAPI::Base.site = "https://#{key}:#{pwd}@#{name}.myshopify.com/admin"
     shop = ShopifyAPI::Shop.current
+
     $shop_name = name
-    $currency = shop.money_with_currency_format
+    $currency  = shop.money_with_currency_format
+
+    session[:logged_in] = true
     open_connection
-  rescue => e
-    puts "Exception", e
+  rescue SocketError, ActiveResource::ResourceNotFound => e
+    puts "Exception: #{e}"
     close_connection
   end
 
   def close_connection
     $connected = false
-    session[:logged_in] = nil
+    session[:logged_in] = false
   end
 
   def open_connection
@@ -81,7 +90,7 @@ module ApplicationHelpers
   ## Metrics Helpers
 
   def max_hash_key_exclude_value(unsorted_hash, exclude_value)
-    unsorted_hash.sort_by{ |k, v| v }.map{ |k, v| [k, v] unless k.downcase == exclude_value }.compact.last
+    unsorted_hash.sort_by { |_, v| v }.map { |k, v| [k, v] unless k.downcase == exclude_value }.compact.last
   end
 
   def display_as_currency(value)
@@ -102,41 +111,39 @@ module ApplicationHelpers
   end
 
   def get_average_revenue(total_revenue, duration)
-    (total_revenue/duration).round(2)
+    (total_revenue / duration).round(2)
   rescue
     'N/A'
   end
-  
+
   def get_daily_revenues(start_date, end_date, orders)
     # Create hash entry for every day within interval over which to inspect sales
     revenue_per_day = {}
     days = get_date_range(start_date, end_date)
-    (0..days).each{ |day| revenue_per_day[(DateTime.parse(end_date) - day).strftime("%Y-%m-%d")] = 0 }
+    (0..days).each { |day| revenue_per_day[(DateTime.parse(end_date) - day).strftime("%Y-%m-%d")] = 0 }
 
     # Retreive array of ActiveRecord::Collections, each containing orders between the start and end date
-    order_details = orders.map{ |order| [order.created_at, order.total_price.to_f] }
-    
+    order_details = orders.map { |order| [order.created_at, order.total_price.to_f] }
+
     # Filter order details into daily totals and return
     order_details.each do |(date, total)|
       day_index = DateTime.parse(date).strftime('%Y-%m-%d')
       revenue_per_day[day_index] = revenue_per_day[day_index].plus(total)
     end
+
     revenue_per_day
   end
 
   def hash_to_graph_format(sales, merge_results: false)
-    
     # ChartKick requires a strange format to build graphs. For instance, an array of
     #   {:name => <item_name>, :data => [[<customer_id>, <item_price>], [<customer_id>, <item_price>]]}
     # places <customer_id> on the independent (x) axis, and stacks each item (item_name) on the y-axis by price (item_price)
 
-    name_hash = sales.map{ |sale| {:name => sale[:name], :data => []} }.uniq
-    
+    name_hash = sales.map { |sale| { :name => sale[:name], :data => [] } }.uniq
+
     sales.map do |old_hash|
       name_hash.map do |new_hash|
-        if old_hash[:name] == new_hash[:name]
-          new_hash[:data].push(old_hash[:data])
-        end
+        new_hash[:data].push(old_hash[:data]) if old_hash[:name] == new_hash[:name]
       end
     end
 
@@ -156,21 +163,19 @@ module ApplicationHelpers
     name_hash
   end
 
-  # Return order query parameters hash
   def order_parameters_paginate(start_date, end_date, page)
-    {  
-      :created_at_min => start_date + " 0:00", 
-      :created_at_max => end_date + " 23:59:59", 
-      :limit => 250,
-      :page => page,
-      :fields => DESIRED_FIELDS 
+    {
+      :created_at_min => start_date + " 0:00",
+      :created_at_max => end_date + " 23:59:59",
+      :limit  => 250,
+      :page   => page,
+      :fields => DESIRED_FIELDS
     }
   end
 
-
-  # Return array of ActiveRecord::Collections, each containing up to :limit (250) orders
-  # Continue to query next page until less than :limit orders are returned, indicating no next pages with orders matching query
   def get_list_of_orders(start_date, end_date)
+    # Return array of ActiveRecord::Collections, each containing up to :limit (250) orders
+    # Continue to query next page until less than :limit orders are returned, indicating no next pages with orders matching query
 
     # Get first 250 results matching query
     params = order_parameters_paginate(start_date, end_date, 1)
@@ -182,12 +187,10 @@ module ApplicationHelpers
       revenue_metrics << ShopifyAPI::Order.find(:all, :params => params)
     end
 
-    revenue_metrics.flat_map{ |orders| orders.map{ |order| order }}
+    revenue_metrics.flat_map { |orders| orders.map { |order| order } }
   end
-  
 
   def get_detailed_revenue_metrics(start_date, end_date = DateTime.now)
-
     order_list = get_list_of_orders(start_date, end_date)
 
     # Revenue
@@ -195,22 +198,23 @@ module ApplicationHelpers
     duration = get_date_range(start_date, end_date) + 1
     avg_revenue = get_average_revenue(total_revenue, duration)
     daily_revenue = get_daily_revenues(start_date, end_date, order_list)
-    max_daily_revenue = daily_revenue.max_by{ |k,v| v }[1]
-    
+    max_daily_revenue = daily_revenue.max_by { |_, v| v }[1]
+
     # Retrieve Metrics
-    sales_report = ShopifyDashboardPlus::SalesReport.new(order_list).to_h
-    revenue_report = ShopifyDashboardPlus::RevenueReport.new(order_list).to_h
-    traffic_report = ShopifyDashboardPlus::TrafficReport.new(order_list).to_h
+    sales_report     = ShopifyDashboardPlus::SalesReport.new(order_list).to_h
+    revenue_report   = ShopifyDashboardPlus::RevenueReport.new(order_list).to_h
+    traffic_report   = ShopifyDashboardPlus::TrafficReport.new(order_list).to_h
     discounts_report = ShopifyDashboardPlus::DiscountReport.new(order_list).to_h
-    metrics = { 
-      :total_revenue => total_revenue,
-      :average_revenue => avg_revenue,
-      :daily_revenue => daily_revenue,
+    metrics = {
+      :total_revenue     => total_revenue,
+      :average_revenue   => avg_revenue,
+      :daily_revenue     => daily_revenue,
       :max_daily_revenue => max_daily_revenue,
-      :duration => duration
+      :duration          => duration
     }
 
     [sales_report, revenue_report, traffic_report, discounts_report, metrics].inject(&:merge)
   end
 
 end
+
